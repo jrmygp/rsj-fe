@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useGetPort } from '@/services/port/hooks/useGetPort';
 import { useSearchParams } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
@@ -65,9 +66,6 @@ export default function Port() {
     validationSchema: portSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      console.log('Submitted Values:', values);
-      console.log('Edit Data:', editData);
-
       updatePortMutation({
         portName: values.portName,
         note: values.note,
@@ -134,6 +132,8 @@ export default function Port() {
       <div className='text-[48px] font-semibold'>Port</div>
       <SearchAndCreate
         title={'Add Port'}
+        handleSearchChange={handleSearchChange}
+        searchValue={searchValue}
         labels={portLabel}
         formik={portFormik}
         mutationStatus={createPortStatus}

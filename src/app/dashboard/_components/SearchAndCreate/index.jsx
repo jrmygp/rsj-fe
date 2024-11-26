@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { Button } from '@/components/ui/button';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdOutlineSearch } from 'react-icons/md';
 import {
   Dialog,
   DialogContent,
@@ -119,7 +121,8 @@ export default function SearchAndCreate({
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder='Search...'
-          className='w-[20%] rounded border p-2'
+          className='w-96'
+          leftIcon={<MdOutlineSearch size={24} />}
         />
       )}
     </div>

@@ -18,16 +18,17 @@ import Loading from '@/components/template/Loading';
 import { cn } from '@/lib/utils';
 import { NumericFormat } from 'react-number-format';
 
-const ItemForm = ({ onAddItem, onClose }) => {
+const ItemForm = ({ onSubmit, onClose, item }) => {
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      itemId: '',
-      itemName: '',
-      price: '',
-      currency: '',
-      quantity: '',
-      unit: '',
-      note: '',
+      itemId: item?.itemId || '',
+      itemName: item?.itemName || '',
+      price: item?.price || '',
+      currency: item?.currency || '',
+      quantity: item?.quantity || '',
+      unit: item?.unit || '',
+      note: item?.note || '',
     },
     validationSchema: Yup.object({
       itemId: Yup.string().required('Item ID is required'),
@@ -39,7 +40,7 @@ const ItemForm = ({ onAddItem, onClose }) => {
       note: Yup.string(),
     }),
     onSubmit: (values) => {
-      onAddItem(values);
+      onSubmit(values);
       formik.resetForm();
       onClose();
     },
@@ -187,7 +188,7 @@ const ItemForm = ({ onAddItem, onClose }) => {
       </div>
 
       <DialogFooter>
-        <Button type='submit'>Add Item</Button>
+        <Button type='submit'>Submit</Button>
         <Button type='button' variant='secondary' onClick={onClose}>
           Cancel
         </Button>

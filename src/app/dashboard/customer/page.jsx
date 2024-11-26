@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { useGetCustomer } from '@/services/customer/hooks/useGetCustomer';
 import { useSearchParams } from 'react-router-dom';

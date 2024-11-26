@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useGetQuotation } from '@/services/quotation/hooks/useGetQuotation';
 import Loading from '@/components/template/Loading';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import TableTemp from '@/components/template/TableTemp';
 import { useDeleteQuotation } from '@/services/quotation/hooks/useDeleteQuotation';
 import PaginationTemp from '@/components/template/PaginationTemp';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +19,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useGeneratePdf } from '@/services/quotation/hooks/useGeneratePdf';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdOutlineSearch } from 'react-icons/md';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 const tableColumns = [
   {
@@ -47,21 +50,23 @@ export default function Quotation() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1', 10);
   const search = searchParams.get('search') || '';
+  const [searchValue, setSearchValue] = useState(search);
+  const [debouncedSearch] = useDebounce(searchValue, 1000);
 
   const navigate = useNavigate();
 
   const { quotationData, quotationStatus, refetch } = useGetQuotation(
-    search,
+    debouncedSearch,
     page,
   );
   const { deleteQuotationMutation, deleteQuotationStatus } =
     useDeleteQuotation();
 
-  const { generatePdfMutation, generatePdfStatus, data } = useGeneratePdf();
+  const { generatePdfMutation } = useGeneratePdf();
 
   useEffect(() => {
     refetch();
-  }, [deleteQuotationStatus, page, search]);
+  }, [deleteQuotationStatus, page, debouncedSearch]);
 
   if (quotationStatus === 'pending') {
     return <Loading />;
@@ -75,21 +80,35 @@ export default function Quotation() {
   };
 
   const handleSearchChange = (newSearch) => {
+    setSearchValue(newSearch);
     setSearchParams({ page: '1', search: newSearch });
   };
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
       <div className='text-[48px] font-semibold'>Quotation List</div>
-      <Button
-        onClick={() => {
-          navigate('/dashboard/quotation/action');
-        }}
-        className='flex w-fit items-center justify-center gap-2'
-      >
-        <MdAdd />
-        Add Quotation
-      </Button>
+      <div className='flex items-center justify-between'>
+        <Button
+          onClick={() => {
+            navigate('/dashboard/quotation/action');
+          }}
+          className='flex w-fit items-center justify-center gap-2'
+        >
+          <MdAdd />
+          Add Quotation
+        </Button>
+
+        {searchValue !== undefined && handleSearchChange && (
+          <Input
+            type='text'
+            value={searchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder='Search...'
+            className='w-96'
+            leftIcon={<MdOutlineSearch size={24} />}
+          />
+        )}
+      </div>
       <div className='flex flex-col items-center justify-between gap-[16px] rounded-xl border bg-white p-10 shadow-xl'>
         <TableTemp
           data={quotation}
