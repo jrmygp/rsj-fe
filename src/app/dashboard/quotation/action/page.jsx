@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import {
   Dialog,
@@ -51,6 +52,7 @@ import { useCreateQuotation } from '@/services/quotation/hooks/useCreateQuotatio
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUpdateQuotation } from '@/services/quotation/hooks/useUpdateQuotation';
 import { useGetQuotationDetail } from '@/services/quotation/hooks/useGetQuotationDetail';
+import { NumericFormat } from 'react-number-format';
 
 export default function QuotationAction() {
   const navigate = useNavigate();
@@ -130,6 +132,8 @@ export default function QuotationAction() {
 
         const payload = {
           ...values,
+          weight: parseFloat(values.weight),
+          volume: parseFloat(values.volume),
           rateValidity: formattedRateValidity,
         };
 
@@ -139,6 +143,8 @@ export default function QuotationAction() {
       }
     },
   });
+
+  console.log(quotationFormik.values);
 
   const handleDateChange = (selectedDate) => {
     const formattedDate = selectedDate
@@ -170,7 +176,7 @@ export default function QuotationAction() {
             <TabsTrigger value='data'>Data</TabsTrigger>
             <TabsTrigger value='item'>Item</TabsTrigger>
           </TabsList>
-          <TabsContent value='data' className='h-[750px]'>
+          <TabsContent value='data'>
             <div className='grid gap-4 py-4'>
               {/* Quotation Number */}
               <div className='grid grid-cols-4 items-center gap-4'>
@@ -445,7 +451,8 @@ export default function QuotationAction() {
               {/** Mass/Weight */}
               <div className='grid grid-cols-4 items-center gap-4'>
                 <Label className='text-right'>Mass/Weight</Label>
-                <Input
+                <NumericFormat
+                  customInput={Input}
                   className={cn(
                     'col-span-3',
                     quotationFormik.touched.weight &&
@@ -455,17 +462,21 @@ export default function QuotationAction() {
                   placeholder='In Kilogram'
                   id='weight'
                   name='weight'
-                  type='number'
-                  onChange={quotationFormik.handleChange}
+                  onValueChange={(values) => {
+                    const { floatValue } = values;
+                    quotationFormik.setFieldValue('weight', floatValue);
+                  }}
                   onBlur={quotationFormik.handleBlur}
                   value={quotationFormik.values.weight}
+                  thousandSeparator
                 />
               </div>
 
               {/** Volume */}
               <div className='grid grid-cols-4 items-center gap-4'>
                 <Label className='text-right'>Volume</Label>
-                <Input
+                <NumericFormat
+                  customInput={Input}
                   className={cn(
                     'col-span-3',
                     quotationFormik.touched.volume &&
@@ -475,10 +486,13 @@ export default function QuotationAction() {
                   placeholder='m3'
                   id='volume'
                   name='volume'
-                  type='number'
-                  onChange={quotationFormik.handleChange}
+                  onValueChange={(values) => {
+                    const { floatValue } = values;
+                    quotationFormik.setFieldValue('volume', floatValue);
+                  }}
                   onBlur={quotationFormik.handleBlur}
                   value={quotationFormik.values.volume}
+                  thousandSeparator
                 />
               </div>
 
@@ -568,7 +582,7 @@ export default function QuotationAction() {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value='item' className='h-[750px]'>
+          <TabsContent value='item'>
             <div className='flex flex-col gap-4 py-4'>
               {/* Note */}
               <div className='flex flex-col gap-4'>
@@ -642,9 +656,9 @@ export default function QuotationAction() {
                   {quotationFormik.values.listCharges.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{item.itemName}</TableCell>
-                      <TableCell>{item.price}</TableCell>
+                      <TableCell>{item.price.toLocaleString()}</TableCell>
                       <TableCell>{item.currency}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.quantity.toLocaleString()}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.note}</TableCell>
                       <TableCell>

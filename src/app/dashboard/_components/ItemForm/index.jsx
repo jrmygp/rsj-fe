@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import { useGetAllCost } from '@/services/cost-charges/hooks/useGetAllCost';
 import Loading from '@/components/template/Loading';
 import { cn } from '@/lib/utils';
+import { NumericFormat } from 'react-number-format';
 
 const ItemForm = ({ onAddItem, onClose }) => {
   const formik = useFormik({
@@ -31,9 +32,9 @@ const ItemForm = ({ onAddItem, onClose }) => {
     validationSchema: Yup.object({
       itemId: Yup.string().required('Item ID is required'),
       itemName: Yup.string().required('Item name is required'),
-      price: Yup.number().required('Price is required').positive(),
+      price: Yup.string().required('Price is required'),
       currency: Yup.string().required('Currency is required'),
-      quantity: Yup.number().required('Quantity is required').positive(),
+      quantity: Yup.string().required('Quantity is required'),
       unit: Yup.string(),
       note: Yup.string(),
     }),
@@ -94,15 +95,20 @@ const ItemForm = ({ onAddItem, onClose }) => {
           <Label htmlFor='price' className='text-right'>
             Price
           </Label>
-          <Input
+
+          <NumericFormat
+            customInput={Input}
             id='price'
             name='price'
-            type='number'
             className={`col-span-3 ${formik.touched.price && formik.errors.price ? 'border-red-500' : ''}`}
             value={formik.values.price}
-            onChange={formik.handleChange}
+            onValueChange={(values) => {
+              const { floatValue } = values;
+              formik.setFieldValue('price', floatValue);
+            }}
             onBlur={formik.handleBlur}
             placeholder='Enter Price'
+            thousandSeparator
           />
         </div>
         {/* Currency */}
@@ -136,15 +142,16 @@ const ItemForm = ({ onAddItem, onClose }) => {
           <Label htmlFor='quantity' className='text-right'>
             Quantity
           </Label>
-          <Input
+          <NumericFormat
+            customInput={Input}
             id='quantity'
             name='quantity'
-            type='number'
             className={`col-span-3 ${formik.touched.quantity && formik.errors.quantity ? 'border-red-500' : ''}`}
             value={formik.values.quantity}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder='Enter Quantity'
+            thousandSeparator
           />
         </div>
         {/* Unit */}
