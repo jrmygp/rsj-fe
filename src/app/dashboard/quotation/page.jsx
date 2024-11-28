@@ -117,7 +117,7 @@ export default function Quotation() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(`/dashboard/quotation/action/${row.id}`, {
+                navigate(`/radix-logistics/quotation/edit/${row.id}`, {
                   state: { data: row },
                 })
               }
@@ -173,7 +173,7 @@ export default function Quotation() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/dashboard/quotation/action');
+            navigate('/radix-logistics/quotation/create-new');
           }}
           className='flex w-fit items-center justify-center gap-2'
         >

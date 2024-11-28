@@ -252,416 +252,424 @@ export default function QuotationAction() {
   return (
     <form onSubmit={quotationFormik.handleSubmit} className='py-4'>
       <div className='flex w-full items-center justify-center'>
-        <Tabs defaultValue='data' className='w-[90%]'>
+        <Tabs defaultValue='data' className='w-full px-8'>
           <TabsList className='grid w-full grid-cols-2 justify-center'>
             <TabsTrigger value='data'>Data</TabsTrigger>
             <TabsTrigger value='item'>Item</TabsTrigger>
           </TabsList>
           <TabsContent value='data'>
-            <div className='grid gap-4 py-4'>
-              {/* Quotation Number */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Quotation Number</Label>
-                <Input
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.quotationNumber &&
-                      quotationFormik.errors.quotationNumber &&
-                      'border-red-500',
-                  )}
-                  id='quotationNumber'
-                  name='quotationNumber'
-                  type='text'
-                  onChange={quotationFormik.handleChange}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.quotationNumber}
-                />
-              </div>
-
-              {/* Customer */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Customer</Label>
-                <Select
-                  value={quotationFormik.values.customerId}
-                  onValueChange={(value) => {
-                    const selectedCustomer = customer.find(
-                      (cust) => cust.id === value,
-                    );
-                    if (selectedCustomer) {
-                      quotationFormik.setFieldValue(
-                        'customerId',
-                        selectedCustomer.id,
-                      );
-                      quotationFormik.setFieldValue(
-                        'customerName',
-                        selectedCustomer.name,
-                      );
-                    }
-                  }}
-                  onBlur={() => quotationFormik.setFieldTouched('customerId')}
-                >
-                  <SelectTrigger
+            <div className='flex gap-4 py-4'>
+              <div className='flex flex-1 flex-col gap-4'>
+                {/* Quotation Number */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Quotation Number</Label>
+                  <Input
                     className={cn(
                       'col-span-3 w-full',
-                      quotationFormik.touched.customerId &&
-                        quotationFormik.errors.customerId &&
+                      quotationFormik.touched.quotationNumber &&
+                        quotationFormik.errors.quotationNumber &&
                         'border-red-500',
                     )}
+                    id='quotationNumber'
+                    name='quotationNumber'
+                    type='text'
+                    onChange={quotationFormik.handleChange}
+                    onBlur={quotationFormik.handleBlur}
+                    value={quotationFormik.values.quotationNumber}
+                  />
+                </div>
+
+                {/* Customer */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Customer</Label>
+                  <Select
+                    value={quotationFormik.values.customerId}
+                    onValueChange={(value) => {
+                      const selectedCustomer = customer.find(
+                        (cust) => cust.id === value,
+                      );
+                      if (selectedCustomer) {
+                        quotationFormik.setFieldValue(
+                          'customerId',
+                          selectedCustomer.id,
+                        );
+                        quotationFormik.setFieldValue(
+                          'customerName',
+                          selectedCustomer.name,
+                        );
+                      }
+                    }}
+                    onBlur={() => quotationFormik.setFieldTouched('customerId')}
                   >
-                    <SelectValue placeholder='Customer'>
-                      {quotationFormik.values.customerName || 'Select Customer'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    {customer.map((cust) => (
-                      <SelectItem key={cust.id} value={cust.id}>
-                        {cust.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Commodity */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Commodity</Label>
-                <Input
-                  placeholder='Input Commodity'
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.commodity &&
-                      quotationFormik.errors.commodity &&
-                      'border-red-500',
-                  )}
-                  id='commodity'
-                  name='commodity'
-                  type='text'
-                  onChange={quotationFormik.handleChange}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.commodity}
-                />
-              </div>
-
-              {/* Rate validity */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Rate Validity</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={'outline'}
+                    <SelectTrigger
                       className={cn(
-                        'col-span-3 w-full justify-start text-left font-normal',
-                        !quotationFormik.values.rateValidity &&
-                          'text-muted-foreground',
-                        quotationFormik.touched.rateValidity &&
-                          quotationFormik.errors.rateValidity &&
+                        'col-span-3 w-full',
+                        quotationFormik.touched.customerId &&
+                          quotationFormik.errors.customerId &&
                           'border-red-500',
                       )}
                     >
-                      <CalendarIcon className='mr-2 h-4 w-4' />
-                      {quotationFormik.values.rateValidity ? (
-                        format(
-                          new Date(quotationFormik.values.rateValidity),
-                          'dd/MM/yyyy',
-                        )
-                      ) : (
-                        <span>Pick a date</span>
+                      <SelectValue placeholder='Customer'>
+                        {quotationFormik.values.customerName ||
+                          'Select Customer'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {customer.map((cust) => (
+                        <SelectItem key={cust.id} value={cust.id}>
+                          {cust.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Commodity */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Commodity</Label>
+                  <Input
+                    placeholder='Input Commodity'
+                    className={cn(
+                      'col-span-3',
+                      quotationFormik.touched.commodity &&
+                        quotationFormik.errors.commodity &&
+                        'border-red-500',
+                    )}
+                    id='commodity'
+                    name='commodity'
+                    type='text'
+                    onChange={quotationFormik.handleChange}
+                    onBlur={quotationFormik.handleBlur}
+                    value={quotationFormik.values.commodity}
+                  />
+                </div>
+
+                {/* Rate validity */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Rate Validity</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'col-span-3 w-full justify-start text-left font-normal',
+                          !quotationFormik.values.rateValidity &&
+                            'text-muted-foreground',
+                          quotationFormik.touched.rateValidity &&
+                            quotationFormik.errors.rateValidity &&
+                            'border-red-500',
+                        )}
+                      >
+                        <CalendarIcon className='mr-2 h-4 w-4' />
+                        {quotationFormik.values.rateValidity ? (
+                          format(
+                            new Date(quotationFormik.values.rateValidity),
+                            'dd/MM/yyyy',
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-full p-0'>
+                      <Calendar
+                        mode='single'
+                        selected={
+                          quotationFormik.values.rateValidity
+                            ? new Date(quotationFormik.values.rateValidity)
+                            : undefined
+                        }
+                        onSelect={(selectedDate) =>
+                          handleDateChange(selectedDate)
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Shipping Term */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Shipping Term</Label>
+                  <Select
+                    value={quotationFormik.values.shippingTerm}
+                    onValueChange={(value) => {
+                      quotationFormik.setFieldValue('shippingTerm', value);
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.shippingTerm &&
+                          quotationFormik.errors.shippingTerm &&
+                          'border-red-500',
                       )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-full p-0'>
-                    <Calendar
-                      mode='single'
-                      selected={
-                        quotationFormik.values.rateValidity
-                          ? new Date(quotationFormik.values.rateValidity)
-                          : undefined
+                    >
+                      <SelectValue placeholder='Shipping Term'>
+                        {quotationFormik.values.shippingTerm ||
+                          'Select Shipping Term'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      <SelectItem value='FOB'>FOB</SelectItem>
+                      <SelectItem value='EXW'>EXW</SelectItem>
+                      <SelectItem value='CIF'>CIF</SelectItem>
+                      <SelectItem value='CFR'>CFR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/** Port of Loading */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Port of Loading</Label>
+                  <Select
+                    value={quotationFormik.values.portOfLoadingId}
+                    onValueChange={(value) => {
+                      const selectedPort = port.find((p) => p.id === value);
+                      if (selectedPort) {
+                        quotationFormik.setFieldValue(
+                          'portOfLoadingId',
+                          selectedPort.id,
+                        );
+                        quotationFormik.setFieldValue(
+                          'portOfLoadingName',
+                          selectedPort.portName,
+                        );
                       }
-                      onSelect={(selectedDate) =>
-                        handleDateChange(selectedDate)
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.portOfLoadingId &&
+                          quotationFormik.errors.portOfLoadingId &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Port of Loading'>
+                        {quotationFormik.values.portOfLoadingName ||
+                          'Select Port'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {port.map((port) => (
+                        <SelectItem key={port.id} value={port.id}>
+                          {port.portName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Port of Discharge */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Port of Discharge</Label>
+                  <Select
+                    value={quotationFormik.values.portOfDischargeId}
+                    onValueChange={(value) => {
+                      const selectedPort = port.find((p) => p.id === value);
+                      if (selectedPort) {
+                        quotationFormik.setFieldValue(
+                          'portOfDischargeId',
+                          selectedPort.id,
+                        );
+                        quotationFormik.setFieldValue(
+                          'portOfDischargeName',
+                          selectedPort.portName,
+                        );
                       }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.portOfDischargeId &&
+                          quotationFormik.errors.portOfDischargeId &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Port of Discharge'>
+                        {quotationFormik.values.portOfDischargeName ||
+                          'Select Port'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {port.map((port) => (
+                        <SelectItem key={port.id} value={port.id}>
+                          {port.portName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Shipping Term */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Shipping Term</Label>
-                <Select
-                  value={quotationFormik.values.shippingTerm}
-                  onValueChange={(value) => {
-                    quotationFormik.setFieldValue('shippingTerm', value);
-                  }}
-                >
-                  <SelectTrigger
+              <div className='flex flex-1 flex-col gap-4'>
+                {/* Service */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Service</Label>
+                  <Select
+                    value={quotationFormik.values.service}
+                    onValueChange={(value) => {
+                      quotationFormik.setFieldValue('service', value);
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.service &&
+                          quotationFormik.errors.service &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Service'>
+                        {quotationFormik.values.service || 'Select Service'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      <SelectItem value='Sea'>Sea</SelectItem>
+                      <SelectItem value='Air'>Air</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Mass/Weight */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Mass/Weight</Label>
+                  <NumericFormat
+                    customInput={Input}
                     className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.shippingTerm &&
-                        quotationFormik.errors.shippingTerm &&
+                      'col-span-3',
+                      quotationFormik.touched.weight &&
+                        quotationFormik.errors.weight &&
                         'border-red-500',
                     )}
-                  >
-                    <SelectValue placeholder='Shipping Term'>
-                      {quotationFormik.values.shippingTerm ||
-                        'Select Shipping Term'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    <SelectItem value='FOB'>FOB</SelectItem>
-                    <SelectItem value='EXW'>EXW</SelectItem>
-                    <SelectItem value='CIF'>CIF</SelectItem>
-                    <SelectItem value='CFR'>CFR</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                    placeholder='In Kilogram'
+                    id='weight'
+                    name='weight'
+                    onValueChange={(values) => {
+                      const { floatValue } = values;
+                      quotationFormik.setFieldValue('weight', floatValue);
+                    }}
+                    onBlur={quotationFormik.handleBlur}
+                    value={quotationFormik.values.weight}
+                    rightIcon={<p>Kg</p>}
+                    thousandSeparator
+                  />
+                </div>
 
-              {/** Port of Loading */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Port of Loading</Label>
-                <Select
-                  value={quotationFormik.values.portOfLoadingId}
-                  onValueChange={(value) => {
-                    const selectedPort = port.find((p) => p.id === value);
-                    if (selectedPort) {
-                      quotationFormik.setFieldValue(
-                        'portOfLoadingId',
-                        selectedPort.id,
-                      );
-                      quotationFormik.setFieldValue(
-                        'portOfLoadingName',
-                        selectedPort.portName,
-                      );
-                    }
-                  }}
-                >
-                  <SelectTrigger
+                {/* Volume */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Volume</Label>
+                  <NumericFormat
+                    customInput={Input}
                     className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.portOfLoadingId &&
-                        quotationFormik.errors.portOfLoadingId &&
+                      'col-span-3',
+                      quotationFormik.touched.volume &&
+                        quotationFormik.errors.volume &&
                         'border-red-500',
                     )}
-                  >
-                    <SelectValue placeholder='Port of Loading'>
-                      {quotationFormik.values.portOfLoadingName ||
-                        'Select Port'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    {port.map((port) => (
-                      <SelectItem key={port.id} value={port.id}>
-                        {port.portName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                    placeholder='m3'
+                    id='volume'
+                    name='volume'
+                    onValueChange={(values) => {
+                      const { floatValue } = values;
+                      quotationFormik.setFieldValue('volume', floatValue);
+                    }}
+                    onBlur={quotationFormik.handleBlur}
+                    value={quotationFormik.values.volume}
+                    rightIcon={<p>Cbm</p>}
+                    thousandSeparator
+                  />
+                </div>
 
-              {/** Port of Discharge */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Port of Discharge</Label>
-                <Select
-                  value={quotationFormik.values.portOfDischargeId}
-                  onValueChange={(value) => {
-                    const selectedPort = port.find((p) => p.id === value);
-                    if (selectedPort) {
-                      quotationFormik.setFieldValue(
-                        'portOfDischargeId',
-                        selectedPort.id,
-                      );
-                      quotationFormik.setFieldValue(
-                        'portOfDischargeName',
-                        selectedPort.portName,
-                      );
-                    }
-                  }}
-                >
-                  <SelectTrigger
+                {/* Sales */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Sales</Label>
+                  <Select
+                    value={quotationFormik.values.salesId}
+                    onValueChange={(value) => {
+                      const selectedUser = user.find((u) => u.id === value);
+                      if (selectedUser) {
+                        quotationFormik.setFieldValue(
+                          'salesId',
+                          selectedUser.id,
+                        );
+                        quotationFormik.setFieldValue(
+                          'salesName',
+                          selectedUser.name,
+                        );
+                      }
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.salesId &&
+                          quotationFormik.errors.salesId &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Sales'>
+                        {quotationFormik.values.salesName || 'Select Sales'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {user.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Payment Term */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Payment Term</Label>
+                  <Input
+                    placeholder='Input Payment Term'
                     className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.portOfDischargeId &&
-                        quotationFormik.errors.portOfDischargeId &&
+                      'col-span-3',
+                      quotationFormik.touched.paymentTerm &&
+                        quotationFormik.errors.paymentTerm &&
                         'border-red-500',
                     )}
+                    id='paymentTerm'
+                    name='paymentTerm'
+                    type='text'
+                    onChange={quotationFormik.handleChange}
+                    onBlur={quotationFormik.handleBlur}
+                    value={quotationFormik.values.paymentTerm}
+                  />
+                </div>
+
+                {/* Status */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Status</Label>
+                  <Select
+                    value={quotationFormik.values.status}
+                    onValueChange={(value) => {
+                      quotationFormik.setFieldValue('status', value);
+                    }}
                   >
-                    <SelectValue placeholder='Port of Discharge'>
-                      {quotationFormik.values.portOfDischargeName ||
-                        'Select Port'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    {port.map((port) => (
-                      <SelectItem key={port.id} value={port.id}>
-                        {port.portName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/** Service */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Service</Label>
-                <Select
-                  value={quotationFormik.values.service}
-                  onValueChange={(value) => {
-                    quotationFormik.setFieldValue('service', value);
-                  }}
-                >
-                  <SelectTrigger
-                    className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.service &&
-                        quotationFormik.errors.service &&
-                        'border-red-500',
-                    )}
-                  >
-                    <SelectValue placeholder='Service'>
-                      {quotationFormik.values.service || 'Select Service'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    <SelectItem value='Sea'>Sea</SelectItem>
-                    <SelectItem value='Air'>Air</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/** Mass/Weight */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Mass/Weight</Label>
-                <NumericFormat
-                  customInput={Input}
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.weight &&
-                      quotationFormik.errors.weight &&
-                      'border-red-500',
-                  )}
-                  placeholder='In Kilogram'
-                  id='weight'
-                  name='weight'
-                  onValueChange={(values) => {
-                    const { floatValue } = values;
-                    quotationFormik.setFieldValue('weight', floatValue);
-                  }}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.weight}
-                  rightIcon={<p>Kg</p>}
-                  thousandSeparator
-                />
-              </div>
-
-              {/** Volume */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Volume</Label>
-                <NumericFormat
-                  customInput={Input}
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.volume &&
-                      quotationFormik.errors.volume &&
-                      'border-red-500',
-                  )}
-                  placeholder='m3'
-                  id='volume'
-                  name='volume'
-                  onValueChange={(values) => {
-                    const { floatValue } = values;
-                    quotationFormik.setFieldValue('volume', floatValue);
-                  }}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.volume}
-                  rightIcon={<p>Cbm</p>}
-                  thousandSeparator
-                />
-              </div>
-
-              {/** Sales */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Sales</Label>
-                <Select
-                  value={quotationFormik.values.salesId}
-                  onValueChange={(value) => {
-                    const selectedUser = user.find((u) => u.id === value);
-                    if (selectedUser) {
-                      quotationFormik.setFieldValue('salesId', selectedUser.id);
-                      quotationFormik.setFieldValue(
-                        'salesName',
-                        selectedUser.name,
-                      );
-                    }
-                  }}
-                >
-                  <SelectTrigger
-                    className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.salesId &&
-                        quotationFormik.errors.salesId &&
-                        'border-red-500',
-                    )}
-                  >
-                    <SelectValue placeholder='Sales'>
-                      {quotationFormik.values.salesName || 'Select Sales'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    {user.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/** Payment Term */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Payment Term</Label>
-                <Input
-                  placeholder='Input Payment Term'
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.paymentTerm &&
-                      quotationFormik.errors.paymentTerm &&
-                      'border-red-500',
-                  )}
-                  id='paymentTerm'
-                  name='paymentTerm'
-                  type='text'
-                  onChange={quotationFormik.handleChange}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.paymentTerm}
-                />
-              </div>
-
-              {/** Status */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label className='text-right'>Status</Label>
-                <Select
-                  value={quotationFormik.values.status}
-                  onValueChange={(value) => {
-                    quotationFormik.setFieldValue('status', value);
-                  }}
-                >
-                  <SelectTrigger
-                    className={cn(
-                      'col-span-3 w-full',
-                      quotationFormik.touched.status &&
-                        quotationFormik.errors.status &&
-                        'border-red-500',
-                    )}
-                  >
-                    <SelectValue placeholder='Status' />
-                  </SelectTrigger>
-                  <SelectContent className='w-full'>
-                    <SelectItem value='Accepted'>Accepted</SelectItem>
-                    <SelectItem value='Declined'>Declined</SelectItem>
-                    <SelectItem value='Pending'>Pending</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        quotationFormik.touched.status &&
+                          quotationFormik.errors.status &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Status' />
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      <SelectItem value='Accepted'>Accepted</SelectItem>
+                      <SelectItem value='Declined'>Declined</SelectItem>
+                      <SelectItem value='Pending'>Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </TabsContent>
