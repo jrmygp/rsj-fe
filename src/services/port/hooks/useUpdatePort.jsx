@@ -7,8 +7,7 @@ export const useUpdatePort = () => {
   const { portRefetch } = useGetPort();
   const { mutate: updatePortMutation, status: updatePortStatus } =
     useUpdatePortMutation({
-      onSuccess: async (res) => {
-        console.log(res);
+      onSuccess: async () => {
         portRefetch();
         toast({
           title: 'Update Port Success',

@@ -5,20 +5,34 @@ import { useDebounce } from 'use-debounce';
 import Loading from '@/components/template/Loading';
 import { useState, useEffect } from 'react';
 import SearchAndCreate from '../_components/SearchAndCreate';
-import TableTemp from '@/components/template/TableTemp';
-import PaginationTemp from '@/components/template/PaginationTemp';
 import { useFormik } from 'formik';
 import { useCreatePort } from '@/services/port/hooks/useCreatePort';
 import { portSchema } from '@/services/port/schema';
 import { useDeletePort } from '@/services/port/hooks/useDeletePort';
 import { useUpdatePort } from '@/services/port/hooks/useUpdatePort';
-
-const tableColumns = [
-  { label: 'No', accessor: 'index', className: 'w-1' },
-  { label: 'Port Name', accessor: 'PortName', className: 'w-1/4' },
-  { label: 'Note', accessor: 'Note', className: 'w-1/4' },
-  { label: 'Status', accessor: 'Status', className: 'w-1/3' },
-];
+import { MdEdit, MdDelete } from 'react-icons/md';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import DynamicEditForm from '../_components/DynamicEditForm';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import DataTable from '@/components/template/DataTable/DataTable';
 
 const portLabel = [
   { id: 'portName', name: 'Port Name', placeholder: 'John Doe', type: 'text' },
@@ -107,8 +121,7 @@ export default function Port() {
     return <Loading />;
   }
 
-  const data = portData.data;
-  const port = portData.data.data;
+  const ports = portData.data;
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -119,13 +132,91 @@ export default function Port() {
     setSearchParams({ page: '1', search: newSearch });
   };
 
-  const handleEdit = (row) => {
-    setEditData(row);
-  };
+  const columns = [
+    {
+      header: 'Port Name',
+      assessor: 'PortName',
+    },
+    {
+      header: 'Note',
+      assessor: 'Note',
+    },
+    {
+      header: 'Status',
+      assessor: 'Status',
+      Cell: (row) => {
+        return (
+          <div
+            className={`rounded-xl px-2 py-1 text-white ${row.Status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}
+          >
+            {row.Status}
+          </div>
+        );
+      },
+    },
+    {
+      header: '',
+      tdStyle: { width: '5%' },
+      Cell: (row) => {
+        return (
+          <div className='flex items-center gap-2'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full bg-blue-500'
+                  onClick={() => {
+                    setEditData(row);
+                  }}
+                >
+                  <MdEdit />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit Entry</DialogTitle>
+                  <DialogDescription>
+                    Make changes here and click save when done.
+                  </DialogDescription>
+                </DialogHeader>
+                <DynamicEditForm formik={editFormik} labels={portLabel} />
+              </DialogContent>
+            </Dialog>
 
-  const handleDelete = (row) => {
-    deletePortMutation({ portId: row.ID });
-  };
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full'
+                  variant='destructive'
+                >
+                  <MdDelete />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    this quotation.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deletePortMutation({ costId: row.ID })}
+                    disabled={deletePortStatus === 'pending'}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
@@ -139,24 +230,13 @@ export default function Port() {
         mutationStatus={createPortStatus}
       />
       <div className='flex flex-col items-center justify-between gap-4 rounded-xl border bg-white p-10 shadow-xl'>
-        <TableTemp
-          data={port}
-          columns={tableColumns}
-          labels={portLabel}
-          actions={{
-            includes: ['edit', 'delete'],
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-            deleteStatus: deletePortStatus,
-          }}
-          firstRow={data.firstRow}
-          editFormik={editFormik}
-          updateStatus={updatePortStatus}
-        />
-        <PaginationTemp
-          handlePageChange={handlePageChange}
+        <DataTable
+          data={ports}
+          columns={columns}
+          options={{ pagination: true }}
           page={page}
-          totalPages={data.totalPages}
+          setPage={handlePageChange}
+          onClickRow={() => {}}
         />
       </div>
     </div>

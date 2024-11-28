@@ -3,9 +3,7 @@ import { useGetQuotation } from '@/services/quotation/hooks/useGetQuotation';
 import Loading from '@/components/template/Loading';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import TableTemp from '@/components/template/TableTemp';
 import { useDeleteQuotation } from '@/services/quotation/hooks/useDeleteQuotation';
-import PaginationTemp from '@/components/template/PaginationTemp';
 import { useEffect, useState } from 'react';
 import {
   AlertDialog,
@@ -19,32 +17,16 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useGeneratePdf } from '@/services/quotation/hooks/useGeneratePdf';
-import { MdAdd, MdOutlineSearch } from 'react-icons/md';
+import {
+  MdAdd,
+  MdOutlineSearch,
+  MdEdit,
+  MdDelete,
+  MdDownload,
+} from 'react-icons/md';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
-
-const tableColumns = [
-  {
-    label: 'Quotation Number',
-    accessor: 'quotationNumber',
-    className: 'w-1/4',
-  },
-  { label: 'Customer Name', accessor: 'customerName', className: 'w-1/4' },
-  { label: 'Rate Validity', accessor: 'rateValidity', className: 'w-1/5' },
-  { label: 'Shipping Term', accessor: 'shippingTerm', className: 'w-1/6' },
-  {
-    label: 'Port of Loading',
-    accessor: 'portOfLoadingName',
-    className: 'w-1/6',
-  },
-  {
-    label: 'Port of Discharge',
-    accessor: 'portOfDischargeName',
-    className: 'w-1/6',
-  },
-  { label: 'Service', accessor: 'service', className: 'w-1/6' },
-  { label: 'Sales Name', accessor: 'salesName', className: 'w-1/6' },
-];
+import DataTable from '@/components/template/DataTable/DataTable';
 
 export default function Quotation() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,17 +54,118 @@ export default function Quotation() {
     return <Loading />;
   }
 
-  const quotation = quotationData.data.data;
-  const totalPages = quotationData.data.totalPages;
+  const quotation = quotationData.data;
 
   const handlePageChange = (newPage) => {
-    setSearchParams({ page: newPage.toString(), search });
+    setSearchParams({ page: newPage.toString(), search: debouncedSearch });
   };
 
   const handleSearchChange = (newSearch) => {
     setSearchValue(newSearch);
     setSearchParams({ page: '1', search: newSearch });
   };
+
+  const columns = [
+    {
+      header: 'Quotation Number',
+      assessor: 'quotationNumber',
+    },
+    {
+      header: 'Customer Name',
+      assessor: 'customerName',
+    },
+    {
+      header: 'Rate Validity',
+      assessor: 'rateValidity',
+    },
+    {
+      header: 'Shipping Term',
+      assessor: 'shippingTerm',
+    },
+    {
+      header: 'Loading',
+      assessor: 'portOfLoadingName',
+    },
+    {
+      header: 'Discharge',
+      assessor: 'portOfDischargeName',
+    },
+    {
+      header: 'Service',
+      assessor: 'service',
+    },
+    {
+      header: 'Status',
+      assessor: 'status',
+      Cell: (row) => {
+        return (
+          <div
+            className={`rounded-xl px-2 py-1 text-white ${row.status === 'Pending' ? 'bg-yellow-500' : row.status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}
+          >
+            {row.status}
+          </div>
+        );
+      },
+    },
+    {
+      header: '',
+      tdStyle: { width: '5%' },
+      Cell: (row) => {
+        return (
+          <div className='flex items-center gap-2'>
+            <Button
+              size='icon'
+              className='rounded-full bg-blue-500'
+              onClick={() =>
+                navigate(`/dashboard/quotation/action/${row.id}`, {
+                  state: { data: row },
+                })
+              }
+            >
+              <MdEdit />
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full'
+                  variant='destructive'
+                >
+                  <MdDelete />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    this quotation.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteQuotationMutation(row)}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Button
+              size='icon'
+              className='rounded-full'
+              onClick={() => generatePdfMutation(row)}
+            >
+              <MdDownload />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
@@ -110,52 +193,13 @@ export default function Quotation() {
         )}
       </div>
       <div className='flex flex-col items-center justify-between gap-[16px] rounded-xl border bg-white p-10 shadow-xl'>
-        <TableTemp
+        <DataTable
           data={quotation}
-          columns={tableColumns}
-          renderActions={(row) => (
-            <>
-              <Button
-                onClick={() =>
-                  navigate(`/dashboard/quotation/action/${row.id}`, {
-                    state: { data: row },
-                  })
-                }
-              >
-                Edit
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button>Delete</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      this quotation.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => deleteQuotationMutation(row)}
-                    >
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <Button onClick={() => generatePdfMutation(row)}>PDF</Button>
-            </>
-          )}
-        />
-        <PaginationTemp
-          handlePageChange={handlePageChange}
+          columns={columns}
+          options={{ pagination: true }}
           page={page}
-          totalPages={totalPages}
+          setPage={handlePageChange}
+          onClickRow={() => {}}
         />
       </div>
     </div>

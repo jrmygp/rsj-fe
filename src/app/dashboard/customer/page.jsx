@@ -4,24 +4,39 @@ import { useGetCustomer } from '@/services/customer/hooks/useGetCustomer';
 import { useSearchParams } from 'react-router-dom';
 import Loading from '@/components/template/Loading';
 import SearchAndCreate from '../_components/SearchAndCreate';
-import PaginationTemp from '@/components/template/PaginationTemp';
 import { useDebounce } from 'use-debounce';
 import { useFormik } from 'formik';
 import { customerSchema } from '@/services/customer/schema';
 import { useCreateCustomer } from '@/services/customer/hooks/useCreateCustomer';
 import { useDeleteCustomer } from '@/services/customer/hooks/useDeleteCustomer';
-import TableTemp from '@/components/template/TableTemp';
 import { useUpdateCustomer } from '@/services/customer/hooks/useUpdateCustomer';
+import { MdEdit, MdDelete } from 'react-icons/md';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import DynamicEditForm from '../_components/DynamicEditForm';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import DataTable from '@/components/template/DataTable/DataTable';
+import { Button } from '@/components/ui/button';
 
 const customerLabel = [
   { id: 'name', name: 'Name', placeholder: 'John Doe', type: 'text' },
   { id: 'address', name: 'Address', placeholder: '123 Main St', type: 'text' },
-];
-
-const tableColumns = [
-  { label: 'No', accessor: 'index', className: 'w-1' },
-  { label: 'Name', accessor: 'Name', className: 'w-1/4' },
-  { label: 'Address', accessor: 'Address', className: 'w-1/3' },
 ];
 
 export default function Customer() {
@@ -97,8 +112,7 @@ export default function Customer() {
     return <Loading />;
   }
 
-  const data = customerData?.data || {};
-  const customer = data?.data || [];
+  const customers = customerData?.data || [];
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -109,11 +123,78 @@ export default function Customer() {
     setSearchParams({ page: '1', search: newSearch });
   };
 
-  const handleEdit = (row) => {
-    setEditData(row);
-  };
+  const columns = [
+    {
+      header: 'Customer Name',
+      assessor: 'Name',
+    },
+    {
+      header: 'Address',
+      assessor: 'Address',
+    },
+    {
+      header: '',
+      tdStyle: { width: '5%' },
+      Cell: (row) => {
+        return (
+          <div className='flex items-center gap-2'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full bg-blue-500'
+                  onClick={() => {
+                    setEditData(row);
+                  }}
+                >
+                  <MdEdit />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit Entry</DialogTitle>
+                  <DialogDescription>
+                    Make changes here and click save when done.
+                  </DialogDescription>
+                </DialogHeader>
+                <DynamicEditForm formik={editFormik} labels={customerLabel} />
+              </DialogContent>
+            </Dialog>
 
-  const handleDelete = (row) => deleteCustomerMutation({ customerId: row.ID });
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full'
+                  variant='destructive'
+                >
+                  <MdDelete />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    this quotation.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteCustomerMutation({ costId: row.ID })}
+                    disabled={deleteCustomerStatus === 'pending'}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
@@ -127,24 +208,13 @@ export default function Customer() {
         mutationStatus={createCustomerStatus}
       />
       <div className='flex flex-col items-center justify-between gap-[16px] rounded-xl border bg-white p-10 shadow-xl'>
-        <TableTemp
-          data={customer}
-          columns={tableColumns}
-          labels={customerLabel}
-          actions={{
-            includes: ['edit', 'delete'],
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-            deleteStatus: deleteCustomerStatus,
-          }}
-          firstRow={data.firstRow}
-          editFormik={editFormik}
-          updateStatus={updateCustomerStatus}
-        />
-        <PaginationTemp
-          handlePageChange={handlePageChange}
+        <DataTable
+          data={customers}
+          columns={columns}
+          options={{ pagination: true }}
           page={page}
-          totalPages={data.totalPages}
+          setPage={handlePageChange}
+          onClickRow={() => {}}
         />
       </div>
     </div>

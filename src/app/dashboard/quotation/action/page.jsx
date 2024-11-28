@@ -21,14 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +46,7 @@ import { useUpdateQuotation } from '@/services/quotation/hooks/useUpdateQuotatio
 import { useGetQuotationDetail } from '@/services/quotation/hooks/useGetQuotationDetail';
 import { NumericFormat } from 'react-number-format';
 import { MdEdit, MdDelete } from 'react-icons/md';
+import DataTable from '@/components/template/DataTable/DataTable';
 
 export default function QuotationAction() {
   const navigate = useNavigate();
@@ -168,6 +161,93 @@ export default function QuotationAction() {
   const customer = customerData.data.data;
   const port = portData.data.data;
   const user = userData.data.data;
+
+  const columns = [
+    {
+      header: 'Item Name',
+      assessor: 'itemName',
+    },
+    {
+      header: 'Price',
+      assessor: 'price',
+      Cell: (row) => {
+        return <p>{row.price.toLocaleString()}</p>;
+      },
+    },
+    {
+      header: 'Currency',
+      assessor: 'currency',
+    },
+    {
+      header: 'Quantity',
+      assessor: 'quantity',
+      Cell: (row) => {
+        return <p>{row.quantity.toLocaleString()}</p>;
+      },
+    },
+    {
+      header: 'Unit',
+      assessor: 'unit',
+    },
+    {
+      header: 'Note',
+      assessor: 'note',
+    },
+    {
+      header: '',
+      Cell: (row, index) => {
+        return (
+          <div className='flex items-center gap-2'>
+            <Dialog
+              open={selectedRow === index}
+              onOpenChange={(isOpen) => setSelectedRow(isOpen ? index : null)}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  size='icon'
+                  className='rounded-full'
+                  onClick={() => setSelectedRow(index)}
+                >
+                  <MdEdit />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit Item</DialogTitle>
+                  <DialogDescription>
+                    Fill the form below to edit an item.
+                  </DialogDescription>
+                </DialogHeader>
+                <ItemForm
+                  item={row}
+                  onSubmit={(newItem) => {
+                    const updatedList = [...quotationFormik.values.listCharges];
+                    updatedList[index] = newItem;
+                    quotationFormik.setFieldValue('listCharges', updatedList);
+                  }}
+                  onClose={() => setSelectedRow(null)}
+                />
+              </DialogContent>
+            </Dialog>
+
+            <Button
+              variant='destructive'
+              size='icon'
+              onClick={() => {
+                const updatedItems = quotationFormik.values.listCharges.filter(
+                  (_, i) => i !== index,
+                );
+                quotationFormik.setFieldValue('listCharges', updatedItems);
+              }}
+              className='rounded-full'
+            >
+              <MdDelete />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <form onSubmit={quotationFormik.handleSubmit} className='py-4'>
@@ -577,8 +657,8 @@ export default function QuotationAction() {
                     <SelectValue placeholder='Status' />
                   </SelectTrigger>
                   <SelectContent className='w-full'>
-                    <SelectItem value='Acept'>Accept</SelectItem>
-                    <SelectItem value='Decline'>Decline</SelectItem>
+                    <SelectItem value='Accepted'>Accepted</SelectItem>
+                    <SelectItem value='Declined'>Declined</SelectItem>
                     <SelectItem value='Pending'>Pending</SelectItem>
                   </SelectContent>
                 </Select>
@@ -625,7 +705,7 @@ export default function QuotationAction() {
                       </DialogDescription>
                     </DialogHeader>
                     <ItemForm
-                      onAddItem={(newItem) => {
+                      onSubmit={(newItem) => {
                         const updatedItems = [
                           ...quotationFormik.values.listCharges,
                           newItem,
@@ -634,7 +714,6 @@ export default function QuotationAction() {
                           'listCharges',
                           updatedItems,
                         );
-                        handleDialogClose();
                       }}
                       onClose={handleDialogClose}
                     />
@@ -643,92 +722,12 @@ export default function QuotationAction() {
               </div>
 
               {/* Table Item */}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Currency</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Unit</TableHead>
-                    <TableHead>Note</TableHead>
-                    <TableHead>Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {quotationFormik.values.listCharges.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.itemName}</TableCell>
-                      <TableCell>{item.price.toLocaleString()}</TableCell>
-                      <TableCell>{item.currency}</TableCell>
-                      <TableCell>{item.quantity.toLocaleString()}</TableCell>
-                      <TableCell>{item.unit}</TableCell>
-                      <TableCell>{item.note}</TableCell>
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          <Dialog
-                            open={selectedRow === index}
-                            onOpenChange={(isOpen) =>
-                              setSelectedRow(isOpen ? index : null)
-                            }
-                          >
-                            <DialogTrigger asChild>
-                              <Button
-                                size='icon'
-                                className='rounded-full'
-                                onclick={() => setSelectedRow(index)}
-                              >
-                                <MdEdit />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className='sm:max-w-[425px]'>
-                              <DialogHeader>
-                                <DialogTitle>Edit Item</DialogTitle>
-                                <DialogDescription>
-                                  Fill the form below to edit an item.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <ItemForm
-                                item={item}
-                                onSubmit={(newItem) => {
-                                  const updatedList = [
-                                    ...quotationFormik.values.listCharges,
-                                  ];
-                                  updatedList[index] = newItem;
-                                  quotationFormik.setFieldValue(
-                                    'listCharges',
-                                    updatedList,
-                                  );
-                                  setSelectedRow(null);
-                                }}
-                                onClose={() => setSelectedRow(null)}
-                              />
-                            </DialogContent>
-                          </Dialog>
-
-                          <Button
-                            variant='destructive'
-                            size='icon'
-                            onClick={() => {
-                              const updatedItems =
-                                quotationFormik.values.listCharges.filter(
-                                  (_, i) => i !== index,
-                                );
-                              quotationFormik.setFieldValue(
-                                'listCharges',
-                                updatedItems,
-                              );
-                            }}
-                            className='rounded-full'
-                          >
-                            <MdDelete />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                staticData={quotationFormik?.values?.listCharges}
+                columns={columns}
+                options={{ pagination: false }}
+                onClickRow={() => {}}
+              />
             </div>
           </TabsContent>
         </Tabs>
