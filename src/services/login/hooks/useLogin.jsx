@@ -21,7 +21,7 @@ export const useLogin = () => {
 
       dispatch(setUser(userData));
 
-      navigate('/dashboard');
+      navigate('/radix-logistics/dashboard');
     },
     onError: (err) => {
       console.log(err);

@@ -216,7 +216,7 @@ export default function CostCharges() {
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
-      <div className='text-[48px] font-semibold'>Cost Chargest</div>
+      <div className='text-[48px] font-semibold'>Cost Charge</div>
       <SearchAndCreate
         title={'Add Cost'}
         searchValue={searchValue}

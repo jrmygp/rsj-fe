@@ -1,53 +1,46 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Outlet,
-} from 'react-router-dom';
-import DashboardPage from './app/dashboard/page';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './app/login/page';
 import DashboardSideBar from './app/dashboard/_components/DashboardSideBar';
-import Quotation from './app/dashboard/quotation/page';
 import ProtectedRoute from './config/ProtectedRoute';
-import Customer from './app/dashboard/customer/page';
-import Port from './app/dashboard/port/page';
-import CostCharges from './app/dashboard/cost-charges/page';
 import UserPage from './app/dashboard/user/page';
-import Test from './app/test/page';
-import QuotationAction from './app/dashboard/quotation/action/page';
+import QuotationRoutes from './routing/QuotationRoutes/QuotationRoutes';
+import MasterDataRoutes from './routing/MasterDataRoutes/MasterDataRoutes';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route
-          path='/'
-          element={<ProtectedRoute redirectIfAuthenticated={true} />}
-        >
-          <Route path='' element={<LoginPage />} />
-        </Route>
-        <Route
+          path='/*'
           element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'Admin']} />
+            <Routes>
+              <Route path='/' element={<LoginPage />} />
+              <Route
+                path='/radix-logistics/*'
+                element={
+                  <ProtectedRoute>
+                    <DashboardSideBar>
+                      <Routes>
+                        <Route path='/dashboard' />
+                        <Route
+                          path='/quotation/*'
+                          element={<QuotationRoutes />}
+                        />
+                        <Route
+                          path='/master-data/*'
+                          element={<MasterDataRoutes />}
+                        />
+                        <Route path='/user' element={<UserPage />} />
+                      </Routes>
+                    </DashboardSideBar>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
           }
-        >
-          <Route path='/dashboard' element={<DashboardSideBar />}>
-            <Route index element={<DashboardPage />} />
-            <Route path='quotation'>
-              <Route index element={<Quotation />} />
-              <Route path='action' element={<QuotationAction />} />
-              <Route path='action/:id' element={<QuotationAction />} />
-            </Route>
-            <Route path='customer' element={<Customer />} />
-            <Route path='port' element={<Port />} />
-            <Route path='cost-charges' element={<CostCharges />} />
-            <Route path='user' element={<UserPage />} />
-            <Route path='test' element={<Test />} />
-            <Route path='test' element={<Test />} />
-          </Route>
-        </Route>
+        />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { AppSidebar } from '@/components/template/app-sidebar';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -6,9 +7,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import AvatarNav from '../AvatarNav';
-import { Outlet } from 'react-router-dom';
 
-export default function DashboardSideBar() {
+export default function DashboardSideBar({ children }) {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -20,7 +20,8 @@ export default function DashboardSideBar() {
           </div>
           <AvatarNav />
         </header>
-        <Outlet />
+
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );

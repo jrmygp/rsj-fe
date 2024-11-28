@@ -54,7 +54,7 @@ export default function Quotation() {
     return <Loading />;
   }
 
-  const quotation = quotationData.data;
+  const quotation = quotationData?.data;
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });

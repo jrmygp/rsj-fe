@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getCookie } from '../cookie';
+import { getCookie, deleteCookie } from '../cookie';
 
 const AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_API_DEV,
@@ -16,7 +16,18 @@ AxiosInstance.interceptors.request.use(
     return request;
   },
   (error) => {
-    console.log(error);
+    return Promise.reject(error);
+  },
+);
+
+AxiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.status === 401) {
+      deleteCookie();
+    }
     return Promise.reject(error);
   },
 );

@@ -5,16 +5,19 @@ export const DataSideBar = {
       title: 'Reff',
       url: '',
       items: [],
+      ref: '',
     },
     {
       title: 'Quotation',
-      url: '/dashboard/quotation',
+      url: '/radix-logistics/quotation',
       items: [],
+      ref: 'quotation',
     },
     {
       title: 'Booking Confirmation',
       url: '',
       items: [],
+      ref: '',
     },
     {
       title: 'Invoice',
@@ -29,6 +32,7 @@ export const DataSideBar = {
           url: '',
         },
       ],
+      ref: 'invoice',
     },
     {
       title: 'Document',
@@ -43,6 +47,7 @@ export const DataSideBar = {
           url: '',
         },
       ],
+      ref: 'document',
     },
     {
       title: 'Master',
@@ -50,27 +55,33 @@ export const DataSideBar = {
       items: [
         {
           title: 'Customer',
-          url: '/dashboard/customer',
+          url: '/radix-logistics/master-data/customer',
+          ref: 'customer',
         },
         {
           title: 'Port',
-          url: '/dashboard/port',
+          url: '/radix-logistics/master-data/port',
+          ref: 'port',
         },
         {
-          title: 'Cost Charges',
-          url: '/dashboard/cost-charges',
+          title: 'Cost Charge',
+          url: '/radix-logistics/master-data/cost-charge',
+          ref: 'cost-charge',
         },
       ],
+      ref: 'master-data',
     },
     {
       title: 'Data User',
-      url: '/dashboard/user',
+      url: '/radix-logistics/user',
       items: [],
+      ref: 'user',
     },
     {
       title: 'Logout',
       url: '',
       items: [],
+      ref: '',
     },
   ],
 };

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { ChevronRight, LayoutDashboard } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,12 +18,17 @@ import {
 } from '@/components/ui/sidebar';
 import { DataSideBar } from '@/lib/RawData';
 import { Separator } from '@/components/ui/separator';
+import { useLocation } from 'react-router-dom';
 
 export function AppSidebar({ ...props }) {
+  const location = useLocation();
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <a href='/' className='flex items-center gap-2'>
+        <a
+          href='/radix-logistics/dashboard'
+          className='flex items-center gap-2'
+        >
           <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-transparent text-sidebar-primary-foreground'>
             <img src='/logo.png' alt='Logo' className='bg-transparent' />
           </div>
@@ -36,11 +40,15 @@ export function AppSidebar({ ...props }) {
       <Separator />
       <SidebarContent className='gap-0'>
         {DataSideBar.navMain.map((item) => {
+          const currentPath = location.pathname.split('/')[2];
+          const specificPath = location.pathname.split('/')[3];
+          const isCurrentPath = currentPath === item.ref;
+
           return item.items.length === 0 ? (
             <a href={item.url} key={item.title}>
               <Collapsible
                 title={item.title}
-                defaultOpen={false}
+                defaultOpen={isCurrentPath}
                 className='group/collapsible'
               >
                 <SidebarGroup>
@@ -61,7 +69,12 @@ export function AppSidebar({ ...props }) {
                         {item.items.map((item) => (
                           <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton asChild isActive={item.isActive}>
-                              <a href={item.url}>{item.title}</a>
+                              <a
+                                href={item.url}
+                                className={`${specificPath === item.ref ? 'text-red-500' : 'text-black'}`}
+                              >
+                                {item.title}
+                              </a>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         ))}
@@ -75,7 +88,7 @@ export function AppSidebar({ ...props }) {
             <Collapsible
               key={item.title}
               title={item.title}
-              defaultOpen={false}
+              defaultOpen={isCurrentPath}
               className='group/collapsible'
             >
               <SidebarGroup>
@@ -96,7 +109,12 @@ export function AppSidebar({ ...props }) {
                       {item.items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton asChild isActive={item.isActive}>
-                            <a href={item.url}>{item.title}</a>
+                            <a
+                              href={item.url}
+                              className={`${specificPath === item.ref ? 'text-red-500 hover:text-red-500' : 'text-black'}`}
+                            >
+                              {item.title}
+                            </a>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
