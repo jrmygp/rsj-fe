@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCookie, deleteCookie } from '../cookie';
 
 const AxiosInstance = axios.create({
-  baseURL: 'http://34.207.114.125:8080',
+  baseURL: import.meta.env.VITE_BASE_API_DEV,
 });
 
 AxiosInstance.interceptors.request.use(
