@@ -67,7 +67,7 @@ export default function QuotationAction() {
       updateQuotationStatus == 'success' ||
       createQuotationStatus === 'success'
     ) {
-      navigate('/dashboard/quotation');
+      navigate('/radix-logistics/quotation');
     }
   }, [createQuotationStatus, updateQuotationStatus]);
 

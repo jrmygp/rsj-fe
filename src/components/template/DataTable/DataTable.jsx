@@ -89,7 +89,7 @@ export default function DataTable(props) {
   };
 
   const generateTableBody = () => {
-    let filtered = data ? data?.data : staticData;
+    let filtered = data ? data?.data || [] : staticData;
     if (Object.keys(dataTableSearch).length) {
       Object.entries(dataTableSearch).forEach((item) => {
         if (item[0] === 'global') {

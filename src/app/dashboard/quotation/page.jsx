@@ -27,6 +27,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import DataTable from '@/components/template/DataTable/DataTable';
+import moment from 'moment';
 
 export default function Quotation() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -75,8 +76,11 @@ export default function Quotation() {
       assessor: 'customerName',
     },
     {
-      header: 'Rate Validity',
+      header: 'Quotation Date',
       assessor: 'rateValidity',
+      Cell: (row) => {
+        return <p>{moment(row.rateValidity).format('DD-MMM-YYYY')}</p>;
+      },
     },
     {
       header: 'Shipping Term',

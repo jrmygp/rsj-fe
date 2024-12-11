@@ -26,12 +26,12 @@ const ProtectedRoute = ({ children }) => {
     // Staff role can't access user page
     if (user.role === 'staff') {
       if (currentLocation === 'user') {
-        navigate('/dashboard');
+        navigate('/radix-logistics/dashboard');
       }
     }
     // Client role can only access dashboard
-    if (user.role === 'client' && currentLocation !== '/dashboard') {
-      navigate('/dashboard');
+    if (user.role === 'client' && currentLocation !== 'dashboard') {
+      navigate('/radix-logistics/dashboard');
     }
   };
 
