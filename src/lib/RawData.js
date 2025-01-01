@@ -24,12 +24,19 @@ export const DataSideBar = {
       url: '',
       items: [
         {
-          title: 'Link 1',
-          url: '',
+          title: 'Import',
+          url: '/radix-logistics/invoice/import',
+          ref: 'import',
         },
         {
-          title: 'Link 2',
-          url: '',
+          title: 'Export',
+          url: '/radix-logistics/invoice/export',
+          ref: 'export',
+        },
+        {
+          title: 'Door to Door',
+          url: '/radix-logistics/invoice/door-to-door',
+          ref: 'door-to-door',
         },
       ],
       ref: 'invoice',

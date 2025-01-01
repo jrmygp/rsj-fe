@@ -5,6 +5,7 @@ import ProtectedRoute from './config/ProtectedRoute';
 import UserPage from './app/dashboard/user/page';
 import QuotationRoutes from './routing/QuotationRoutes/QuotationRoutes';
 import MasterDataRoutes from './routing/MasterDataRoutes/MasterDataRoutes';
+import InvoiceRoutes from './routing/InvoiceRoutes/InvoiceRoutes';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                           path='/quotation/*'
                           element={<QuotationRoutes />}
                         />
+                        <Route path='/invoice/*' element={<InvoiceRoutes />} />
                         <Route
                           path='/master-data/*'
                           element={<MasterDataRoutes />}
