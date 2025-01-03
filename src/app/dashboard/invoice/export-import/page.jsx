@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetQuotation } from '@/services/quotation/hooks/useGetQuotation';
 import Loading from '@/components/template/Loading';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useDeleteQuotation } from '@/services/quotation/hooks/useDeleteQuotation';
 import { useEffect, useState } from 'react';
@@ -28,20 +27,37 @@ import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import DataTable from '@/components/template/DataTable/DataTable';
 import moment from 'moment';
+import { useGetInvoice } from '@/services/invoice/hooks/useGetInvoice';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
 
 export default function Invoice() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const page = parseInt(searchParams.get('page') || '1', 10);
   const search = searchParams.get('search') || '';
   const [searchValue, setSearchValue] = useState(search);
   const [debouncedSearch] = useDebounce(searchValue, 1000);
+  const [filter, setFilter] = useState({
+    customerId: 0,
+    category: location.pathname.split('/')[3],
+  });
 
   const navigate = useNavigate();
 
-  const { quotationData, quotationStatus, refetch } = useGetQuotation(
+  const { invoiceData, invoiceStatus, refetch } = useGetInvoice(
     debouncedSearch,
     page,
+    filter,
   );
+  const { customerData, customerStatus } = useGetAllCustomer();
+
   const { deleteQuotationMutation, deleteQuotationStatus } =
     useDeleteQuotation();
 
@@ -49,13 +65,14 @@ export default function Invoice() {
 
   useEffect(() => {
     refetch();
-  }, [deleteQuotationStatus, page, debouncedSearch]);
+  }, [deleteQuotationStatus, page, debouncedSearch, filter]);
 
-  if (quotationStatus === 'pending') {
+  if (invoiceStatus === 'pending' || customerStatus === 'pending') {
     return <Loading />;
   }
 
-  const quotation = quotationData?.data;
+  const invoice = invoiceData?.data;
+  const customer = customerData.data.data;
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -68,35 +85,45 @@ export default function Invoice() {
 
   const columns = [
     {
+      header: 'No',
+      assessor: 'No',
+      Cell: (row, idx) => {
+        return <p>{idx + 1}</p>;
+      },
+    },
+    {
+      header: 'Invoice Date',
+      assessor: 'invoiceDate',
+      Cell: (row) => {
+        return <p>{moment(row.invoiceDate).format('DD-MMM-YYYY')}</p>;
+      },
+    },
+    {
       header: 'Invoice Number',
-      assessor: 'quotationNumber',
+      assessor: 'invoiceNumber',
     },
     {
       header: 'Customer Name',
       assessor: 'customerName',
     },
     {
-      header: 'Invoice Date',
-      assessor: 'rateValidity',
-      Cell: (row) => {
-        return <p>{moment(row.rateValidity).format('DD-MMM-YYYY')}</p>;
-      },
-    },
-    {
-      header: 'Shipping Term',
-      assessor: 'shippingTerm',
-    },
-    {
-      header: 'Loading',
-      assessor: 'portOfLoadingName',
-    },
-    {
-      header: 'Discharge',
-      assessor: 'portOfDischargeName',
-    },
-    {
       header: 'Service',
       assessor: 'service',
+    },
+    {
+      header: 'BL/AWB',
+      assessor: 'blawb',
+    },
+    {
+      header: 'AJU',
+      assessor: 'aju',
+    },
+    {
+      header: 'Nominal Invoice',
+      assessor: 'nominal',
+      Cell: (row) => {
+        return <p>Rp {row.nominal.toLocaleString()}</p>;
+      },
     },
     {
       header: 'Status',
@@ -104,7 +131,7 @@ export default function Invoice() {
       Cell: (row) => {
         return (
           <div
-            className={`rounded-xl px-2 py-1 text-white ${row.status === 'Pending' ? 'bg-yellow-500' : row.status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}
+            className={`rounded-xl px-2 py-1 text-white ${row.status === 'Paid' ? 'bg-green-500' : 'bg-red-500'}`}
           >
             {row.status}
           </div>
@@ -121,7 +148,7 @@ export default function Invoice() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(`/radix-logistics/quotation/edit/${row.id}`, {
+                navigate(`/radix-logistics/invoice/edit/${row.id}`, {
                   state: { data: row },
                 })
               }
@@ -177,7 +204,7 @@ export default function Invoice() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/radix-logistics/quotation/create-new');
+            navigate('/radix-logistics/invoice/create-new');
           }}
           className='flex w-fit items-center justify-center gap-2'
         >
@@ -185,20 +212,47 @@ export default function Invoice() {
           Add Invoice
         </Button>
 
-        {searchValue !== undefined && handleSearchChange && (
-          <Input
-            type='text'
-            value={searchValue}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder='Search...'
-            className='w-96'
-            leftIcon={<MdOutlineSearch size={24} />}
-          />
-        )}
+        <div className='flex items-center gap-2'>
+          <Select
+            value={filter.customerId}
+            onValueChange={(value) => {
+              setFilter({
+                category: location.pathname.split('/')[3],
+                customerId: value,
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='Customer'>
+                {'Select Customer'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className='w-full'>
+              <SelectItem value={0}>All Customer</SelectItem>
+
+              {customer.map((cust) => (
+                <SelectItem key={cust.id} value={cust.id}>
+                  {cust.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {searchValue !== undefined && handleSearchChange && (
+            <Input
+              type='text'
+              value={searchValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder='Search...'
+              className='w-96'
+              leftIcon={<MdOutlineSearch size={24} />}
+            />
+          )}
+        </div>
       </div>
       <div className='flex flex-col items-center justify-between gap-[16px] rounded-xl border bg-white p-10 shadow-xl'>
         <DataTable
-          data={quotation}
+          data={invoice}
           columns={columns}
           options={{ pagination: true }}
           page={page}

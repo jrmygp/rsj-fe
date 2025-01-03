@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
-import Invoice from '@/app/dashboard/invoice/page';
-import InvoiceAction from '@/app/dashboard/invoice/action/page';
+import Invoice from '@/app/dashboard/invoice/export-import/page';
+import InvoiceAction from '@/app/dashboard/invoice/export-import/action/page';
+import DoorToDoor from '@/app/dashboard/invoice/door-to-door/page';
+import DoorToDoorAction from '@/app/dashboard/invoice/door-to-door/action/page';
 
 const InvoiceRoutes = () => {
   return (
@@ -13,9 +15,9 @@ const InvoiceRoutes = () => {
       <Route path='/export/create-new' element={<InvoiceAction />} />
       <Route path='/export/edit/:id' element={<InvoiceAction />} />
 
-      <Route path='/door-to-door' element={<Invoice />} />
-      <Route path='/door-to-door/create-new' element={<InvoiceAction />} />
-      <Route path='/door-to-door/edit/:id' element={<InvoiceAction />} />
+      <Route path='/door-to-door' element={<DoorToDoor />} />
+      <Route path='/door-to-door/create-new' element={<DoorToDoorAction />} />
+      <Route path='/door-to-door/edit/:id' element={<DoorToDoorAction />} />
     </Routes>
   );
 };
