@@ -1,4 +1,3 @@
-import { useGetQuotationQuery } from '../api/useGetQuotatinQuery';
 import { useGetQuotationDetailQuery } from '../api/useGetQuotationDetailQuery';
 
 export const useGetQuotationDetail = (id) => {

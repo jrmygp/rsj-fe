@@ -6,7 +6,7 @@ export const useDeleteQuotation = () => {
 
   const { mutate: deleteQuotationMutation, status: deleteQuotationStatus } =
     useDeleteQuotationMutation({
-      onSuccess: async (res) => {
+      onSuccess: async () => {
         toast({
           variant: 'destructive',
           title: 'Delete Quotation Success',

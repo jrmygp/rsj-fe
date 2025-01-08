@@ -2,7 +2,6 @@
 import Loading from '@/components/template/Loading';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useDeleteQuotation } from '@/services/quotation/hooks/useDeleteQuotation';
 import { useEffect, useState } from 'react';
 import {
   AlertDialog,
@@ -15,7 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useGeneratePdf } from '@/services/quotation/hooks/useGeneratePdf';
 import {
   MdAdd,
   MdOutlineSearch,
@@ -36,6 +34,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
+import { useGeneratePdf } from '@/services/invoice/hooks/useGeneratePdf';
+import { useDeleteInvoice } from '@/services/invoice/hooks/useDeleteInvoice';
 
 export default function Invoice() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,14 +58,13 @@ export default function Invoice() {
   );
   const { customerData, customerStatus } = useGetAllCustomer();
 
-  const { deleteQuotationMutation, deleteQuotationStatus } =
-    useDeleteQuotation();
+  const { deleteInvoiceMutation, deleteInvoiceStatus } = useDeleteInvoice();
 
   const { generatePdfMutation } = useGeneratePdf();
 
   useEffect(() => {
     refetch();
-  }, [deleteQuotationStatus, page, debouncedSearch, filter]);
+  }, [deleteInvoiceStatus, page, debouncedSearch, filter]);
 
   if (invoiceStatus === 'pending' || customerStatus === 'pending') {
     return <Loading />;
@@ -119,7 +118,7 @@ export default function Invoice() {
       assessor: 'aju',
     },
     {
-      header: 'Nominal Invoice',
+      header: 'Amount',
       assessor: 'nominal',
       Cell: (row) => {
         return <p>Rp {row.nominal.toLocaleString()}</p>;
@@ -148,9 +147,12 @@ export default function Invoice() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(`/radix-logistics/invoice/edit/${row.id}`, {
-                  state: { data: row },
-                })
+                navigate(
+                  `/radix-logistics/invoice/${location.pathname.split('/')[3]}/edit/${row.id}`,
+                  {
+                    state: { data: row },
+                  },
+                )
               }
             >
               <MdEdit />
@@ -171,14 +173,12 @@ export default function Invoice() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    this quotation.
+                    this invoice.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => deleteQuotationMutation(row)}
-                  >
+                  <AlertDialogAction onClick={() => deleteInvoiceMutation(row)}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -204,7 +204,9 @@ export default function Invoice() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/radix-logistics/invoice/create-new');
+            navigate(
+              `/radix-logistics/invoice/${location.pathname.split('/')[3]}/create-new`,
+            );
           }}
           className='flex w-fit items-center justify-center gap-2'
         >
@@ -224,7 +226,8 @@ export default function Invoice() {
           >
             <SelectTrigger>
               <SelectValue placeholder='Customer'>
-                {'Select Customer'}
+                {customer.filter((item) => item.id === filter.customerId)[0]
+                  ?.name || 'Select Customer'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className='w-full'>

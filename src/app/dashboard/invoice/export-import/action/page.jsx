@@ -25,12 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useGetAllQuotation } from '@/services/quotation/hooks/useGetAllQuotation';
-import { DefaultQuotationNumber } from '@/lib/DefaultQuoNumber';
 import Loading from '@/components/template/Loading';
-import { useGetUser } from '@/services/user/hooks/useGetUser';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
-import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
@@ -38,129 +34,137 @@ import { useGetAllPort } from '@/services/port/hooks/useGetAllPort';
 import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useFormik } from 'formik';
-import { quotationSchema } from '@/services/quotation/schema';
 import ItemForm from '../../../_components/ItemForm';
-import { useCreateQuotation } from '@/services/quotation/hooks/useCreateQuotation';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useUpdateQuotation } from '@/services/quotation/hooks/useUpdateQuotation';
-import { useGetQuotationDetail } from '@/services/quotation/hooks/useGetQuotationDetail';
-import { NumericFormat } from 'react-number-format';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import DataTable from '@/components/template/DataTable/DataTable';
+import { useGetInvoiceDetail } from '@/services/invoice/hooks/useGetInvoiceDetail';
+import moment from 'moment';
+import { DefaultInvNumber } from '@/lib/DefaultInvNumber';
+import { useGetAllShipper } from '@/services/shipper/hooks/useGetAllShipper';
+import InvoiceItemForm from '@/app/dashboard/_components/InvoiceItemForm/InvoiceItemForm';
+import * as yup from 'yup';
+import { useCreateInvoice } from '@/services/invoice/hooks/useCreateInvoice';
+import { useGetInvoice } from '@/services/invoice/hooks/useGetInvoice';
+import { useUpdateInvoice } from '@/services/invoice/hooks/useUpdateInvoice';
 
 export default function InvoiceAction() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
   };
 
-  const { createQuotationMutation, createQuotationStatus } =
-    useCreateQuotation();
+  const { createInvoiceMutation, createInvoiceStatus } = useCreateInvoice();
 
-  const { updateQuotationMutation, updateQuotationStatus } =
-    useUpdateQuotation();
+  const { updateInvoiceMutation, updateInvoiceStatus } = useUpdateInvoice();
 
   useEffect(() => {
-    if (
-      updateQuotationStatus == 'success' ||
-      createQuotationStatus === 'success'
-    ) {
-      navigate('/radix-logistics/quotation');
+    if (updateInvoiceStatus == 'success' || createInvoiceStatus === 'success') {
+      navigate(`/radix-logistics/invoice/${location.pathname.split('/')[3]}`);
     }
-  }, [createQuotationStatus, updateQuotationStatus]);
+  }, [createInvoiceStatus, updateInvoiceStatus]);
 
   const { id } = useParams();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { quotationDetailData, quotationDetailStatus } = id
-    ? useGetQuotationDetail(id)
-    : { quotationDetailData: null, quotationDetailStatus: 'idle' };
-  const { quotationData, quotationStatus } = useGetAllQuotation();
-  const { userData, userStatus } = useGetUser();
+  const { invoiceDetailData, invoiceDetailStatus } = id
+    ? useGetInvoiceDetail(id)
+    : { invoiceDetailData: null, invoiceDetailStatus: 'idle' };
+
+  const { invoiceData, invoiceStatus, refetch } = useGetInvoice('', 1, {
+    customerId: selectedCustomer?.id,
+    category: location.pathname.split('/')[3],
+  });
   const { customerData, customerStatus } = useGetAllCustomer();
+  const { shipperData, shipperStatus } = useGetAllShipper();
   const { portData, portStatus } = useGetAllPort();
+  const customer = customerData?.data?.data;
+  const port = portData?.data?.data;
+  const shipper = shipperData?.data?.data;
 
-  const quotationDetail = quotationDetailData?.data?.data;
+  const invoiceDetail = invoiceDetailData?.data?.data;
 
-  const newQuotationNumber = DefaultQuotationNumber(quotationData?.data?.data);
+  const newInvoiceNumber = DefaultInvNumber(
+    invoiceData?.data,
+    selectedCustomer?.companyCode || '???',
+    location.pathname.split('/')[3],
+  );
 
-  const initialValues = quotationDetail
-    ? {
-        ...quotationDetail,
-        rateValidity: quotationDetail.rateValidity
-          ? format(new Date(quotationDetail.rateValidity), 'yyyy-MM-dd')
-          : '',
-      }
-    : {
-        quotationNumber: newQuotationNumber,
-        customerId: '',
-        customerName: '',
-        commodity: '',
-        rateValidity: '',
-        shippingTerm: '',
-        portOfLoadingId: '',
-        portOfLoadingName: '',
-        portOfDischargeId: '',
-        portOfDischargeName: '',
-        service: '',
-        weight: 0,
-        volume: 0,
-        salesId: '',
-        salesName: '',
-        paymentTerm: '',
-        status: '',
-        note: '',
-        listCharges: [],
-      };
-
-  const quotationFormik = useFormik({
-    initialValues,
-    validationSchema: quotationSchema,
+  const invoiceFormik = useFormik({
+    enableReinitialize: invoiceDetail ? true : false,
+    initialValues: {
+      category: invoiceDetail?.category || location.pathname.split('/')[3],
+      invoiceNumber: invoiceDetail?.invoiceNumber || newInvoiceNumber,
+      type: invoiceDetail?.type || '',
+      customerId: invoiceDetail?.customerId || '',
+      consigneeId: invoiceDetail?.consigneeId || '',
+      shipperId: invoiceDetail?.shipperId || '',
+      service: invoiceDetail?.service || '',
+      blawb: invoiceDetail?.blawb || '',
+      aju: invoiceDetail?.aju || '',
+      portOfLoadingId: invoiceDetail?.portOfLoadingId || '',
+      portOfDischargeId: invoiceDetail?.portOfDischargeId || '',
+      shippingMarks: invoiceDetail?.shippingMarks || '',
+      invoiceDate:
+        moment(invoiceDetail?.invoiceDate).format('YYYY-MM-DD') || '',
+      status: invoiceDetail?.status || 'Unpaid',
+      invoiceItems: [],
+    },
+    validationSchema: yup.object().shape({
+      category: yup.string().required('Category is required by system'),
+      invoiceNumber: yup.string().required('Invoice Number is required'),
+      type: yup.string().required('Type is required'),
+      customerId: yup.string().required('Customer is required'),
+      consigneeId: yup.string().required('Consignee is required'),
+      shipperId: yup.string().required('Shipper is required'),
+      service: yup.string().required('Service is required'),
+      blawb: yup.string().required('BL/AWB is required'),
+      aju: yup.string().required('AJU is required'),
+      portOfLoadingId: yup.string().required('Port Of Loading is required'),
+      portOfDischargeId: yup.string().required('Port Of Discharge is required'),
+      shippingMarks: yup.string().required('Shipping Marks is required'),
+      invoiceDate: yup.string().required('Invoice Date is required'),
+      status: yup.string().required('Status is required'),
+    }),
     validateOnChange: false,
-    enableReinitialize: true,
     onSubmit: (values) => {
       if (id) {
-        const formattedRateValidity = values.rateValidity
-          ? format(parseISO(values.rateValidity), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-          : null;
-
-        const payload = {
-          ...values,
-          weight: parseFloat(values.weight),
-          volume: parseFloat(values.volume),
-          rateValidity: formattedRateValidity,
-        };
-
-        updateQuotationMutation(payload);
+        updateInvoiceMutation(values);
       } else {
-        createQuotationMutation(values);
+        createInvoiceMutation(values);
       }
     },
   });
 
-  const handleDateChange = (selectedDate) => {
-    const formattedDate = selectedDate
-      ? format(selectedDate, 'yyyy-MM-dd')
-      : '';
+  useEffect(() => {
+    if (!id) {
+      invoiceFormik.setFieldValue('invoiceNumber', newInvoiceNumber);
+    }
+  }, [newInvoiceNumber]);
 
-    quotationFormik.setFieldValue('rateValidity', formattedDate);
-  };
+  useEffect(() => {
+    refetch();
+  }, [invoiceFormik.values.customerId]);
+
+  useEffect(() => {
+    if (invoiceDetail) {
+      invoiceFormik.setFieldValue('invoiceItems', invoiceDetail.invoiceItems);
+    }
+  }, [invoiceDetail]);
 
   if (
-    quotationDetailStatus === 'pending' ||
-    quotationStatus === 'pending' ||
-    userStatus === 'pending' ||
+    invoiceDetailStatus === 'pending' ||
+    invoiceStatus === 'pending' ||
     customerStatus === 'pending' ||
+    shipperStatus === 'pending' ||
     portStatus === 'pending'
   ) {
     return <Loading />;
   }
-
-  const customer = customerData.data.data;
-  const port = portData.data.data;
-  const user = userData.data.data;
 
   const columns = [
     {
@@ -221,9 +225,9 @@ export default function InvoiceAction() {
                 <ItemForm
                   item={row}
                   onSubmit={(newItem) => {
-                    const updatedList = [...quotationFormik.values.listCharges];
+                    const updatedList = [...invoiceFormik.values.invoiceItems];
                     updatedList[index] = newItem;
-                    quotationFormik.setFieldValue('listCharges', updatedList);
+                    invoiceFormik.setFieldValue('invoiceItems', updatedList);
                   }}
                   onClose={() => setSelectedRow(null)}
                 />
@@ -234,10 +238,10 @@ export default function InvoiceAction() {
               variant='destructive'
               size='icon'
               onClick={() => {
-                const updatedItems = quotationFormik.values.listCharges.filter(
+                const updatedItems = invoiceFormik.values.invoiceItems.filter(
                   (_, i) => i !== index,
                 );
-                quotationFormik.setFieldValue('listCharges', updatedItems);
+                invoiceFormik.setFieldValue('invoiceItems', updatedItems);
               }}
               className='rounded-full'
             >
@@ -250,7 +254,7 @@ export default function InvoiceAction() {
   ];
 
   return (
-    <form onSubmit={quotationFormik.handleSubmit} className='py-4'>
+    <form onSubmit={invoiceFormik.handleSubmit} className='py-4'>
       <div className='flex w-full items-center justify-center'>
         <Tabs defaultValue='data' className='w-full px-8'>
           <TabsList className='grid w-full grid-cols-2 justify-center'>
@@ -260,22 +264,41 @@ export default function InvoiceAction() {
           <TabsContent value='data'>
             <div className='flex gap-4 py-4'>
               <div className='flex flex-1 flex-col gap-4'>
-                {/* Quotation Number */}
+                {/* Invoice Number */}
                 <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Quotation Number</Label>
+                  <Label className='text-left'>Invoice Number</Label>
                   <Input
                     className={cn(
                       'col-span-3 w-full',
-                      quotationFormik.touched.quotationNumber &&
-                        quotationFormik.errors.quotationNumber &&
+                      invoiceFormik.touched.invoiceNumber &&
+                        invoiceFormik.errors.invoiceNumber &&
                         'border-red-500',
                     )}
-                    id='quotationNumber'
-                    name='quotationNumber'
+                    id='invoiceNumber'
+                    name='invoiceNumber'
                     type='text'
-                    onChange={quotationFormik.handleChange}
-                    onBlur={quotationFormik.handleBlur}
-                    value={quotationFormik.values.quotationNumber}
+                    onChange={invoiceFormik.handleChange}
+                    onBlur={invoiceFormik.handleBlur}
+                    value={invoiceFormik.values.invoiceNumber}
+                  />
+                </div>
+
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Type</Label>
+                  <Input
+                    placeholder='Input Type'
+                    className={cn(
+                      'col-span-3',
+                      invoiceFormik.touched.type &&
+                        invoiceFormik.errors.type &&
+                        'border-red-500',
+                    )}
+                    id='type'
+                    name='type'
+                    type='text'
+                    onChange={invoiceFormik.handleChange}
+                    onBlur={invoiceFormik.handleBlur}
+                    value={invoiceFormik.values.type}
                   />
                 </div>
 
@@ -283,35 +306,33 @@ export default function InvoiceAction() {
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label className='text-left'>Customer</Label>
                   <Select
-                    value={quotationFormik.values.customerId}
+                    value={invoiceFormik.values.customerId}
                     onValueChange={(value) => {
                       const selectedCustomer = customer.find(
-                        (cust) => cust.id === value,
+                        (cust) => cust.id == value,
                       );
                       if (selectedCustomer) {
-                        quotationFormik.setFieldValue(
+                        invoiceFormik.setFieldValue(
                           'customerId',
                           selectedCustomer.id,
                         );
-                        quotationFormik.setFieldValue(
-                          'customerName',
-                          selectedCustomer.name,
-                        );
+                        setSelectedCustomer(selectedCustomer);
                       }
                     }}
-                    onBlur={() => quotationFormik.setFieldTouched('customerId')}
+                    onBlur={() => invoiceFormik.setFieldTouched('customerId')}
                   >
                     <SelectTrigger
                       className={cn(
                         'col-span-3 w-full',
-                        quotationFormik.touched.customerId &&
-                          quotationFormik.errors.customerId &&
+                        invoiceFormik.touched.customerId &&
+                          invoiceFormik.errors.customerId &&
                           'border-red-500',
                       )}
                     >
                       <SelectValue placeholder='Customer'>
-                        {quotationFormik.values.customerName ||
-                          'Select Customer'}
+                        {customer.filter(
+                          (cust) => cust.id == invoiceFormik.values.customerId,
+                        )[0]?.name || 'Select Customer'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
@@ -324,116 +345,171 @@ export default function InvoiceAction() {
                   </Select>
                 </div>
 
-                {/* Commodity */}
+                {/* Consginee */}
                 <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Commodity</Label>
-                  <Input
-                    placeholder='Input Commodity'
-                    className={cn(
-                      'col-span-3',
-                      quotationFormik.touched.commodity &&
-                        quotationFormik.errors.commodity &&
-                        'border-red-500',
-                    )}
-                    id='commodity'
-                    name='commodity'
-                    type='text'
-                    onChange={quotationFormik.handleChange}
-                    onBlur={quotationFormik.handleBlur}
-                    value={quotationFormik.values.commodity}
-                  />
-                </div>
-
-                {/* Rate validity */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Rate Validity</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'col-span-3 w-full justify-start text-left font-normal',
-                          !quotationFormik.values.rateValidity &&
-                            'text-muted-foreground',
-                          quotationFormik.touched.rateValidity &&
-                            quotationFormik.errors.rateValidity &&
-                            'border-red-500',
-                        )}
-                      >
-                        <CalendarIcon className='mr-2 h-4 w-4' />
-                        {quotationFormik.values.rateValidity ? (
-                          format(
-                            new Date(quotationFormik.values.rateValidity),
-                            'dd/MM/yyyy',
-                          )
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className='w-full p-0'>
-                      <Calendar
-                        mode='single'
-                        selected={
-                          quotationFormik.values.rateValidity
-                            ? new Date(quotationFormik.values.rateValidity)
-                            : undefined
-                        }
-                        onSelect={(selectedDate) =>
-                          handleDateChange(selectedDate)
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {/* Shipping Term */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Shipping Term</Label>
+                  <Label className='text-left'>Consignee</Label>
                   <Select
-                    value={quotationFormik.values.shippingTerm}
+                    value={invoiceFormik.values.consigneeId}
                     onValueChange={(value) => {
-                      quotationFormik.setFieldValue('shippingTerm', value);
+                      const selectedCustomer = customer.find(
+                        (cust) => cust.id == value,
+                      );
+                      if (selectedCustomer) {
+                        invoiceFormik.setFieldValue(
+                          'consigneeId',
+                          selectedCustomer.id,
+                        );
+                      }
+                    }}
+                    onBlur={() => invoiceFormik.setFieldTouched('consigneeId')}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        invoiceFormik.touched.consigneeId &&
+                          invoiceFormik.errors.consigneeId &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Consignee'>
+                        {shipper.filter(
+                          (item) => item.id == invoiceFormik.values.consigneeId,
+                        )[0]?.name || 'Select Consignee'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {shipper.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Shipper */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Shipper</Label>
+                  <Select
+                    value={invoiceFormik.values.shipperId}
+                    onValueChange={(value) => {
+                      const selectedCustomer = customer.find(
+                        (cust) => cust.id == value,
+                      );
+                      if (selectedCustomer) {
+                        invoiceFormik.setFieldValue(
+                          'shipperId',
+                          selectedCustomer.id,
+                        );
+                      }
+                    }}
+                    onBlur={() => invoiceFormik.setFieldTouched('shipperId')}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'col-span-3 w-full',
+                        invoiceFormik.touched.shipperId &&
+                          invoiceFormik.errors.shipperId &&
+                          'border-red-500',
+                      )}
+                    >
+                      <SelectValue placeholder='Shipper'>
+                        {customer.filter(
+                          (cust) => cust.id == invoiceFormik.values.shipperId,
+                        )[0]?.name || 'Select Shipper'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className='w-full'>
+                      {customer.map((cust) => (
+                        <SelectItem key={cust.id} value={cust.id}>
+                          {cust.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Service */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>Service</Label>
+                  <Select
+                    value={invoiceFormik.values.service}
+                    onValueChange={(value) => {
+                      invoiceFormik.setFieldValue('service', value);
                     }}
                   >
                     <SelectTrigger
                       className={cn(
                         'col-span-3 w-full',
-                        quotationFormik.touched.shippingTerm &&
-                          quotationFormik.errors.shippingTerm &&
+                        invoiceFormik.touched.service &&
+                          invoiceFormik.errors.service &&
                           'border-red-500',
                       )}
                     >
-                      <SelectValue placeholder='Shipping Term'>
-                        {quotationFormik.values.shippingTerm ||
-                          'Select Shipping Term'}
+                      <SelectValue placeholder='Service'>
+                        {invoiceFormik.values.service || 'Select Service'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
-                      <SelectItem value='FOB'>FOB</SelectItem>
-                      <SelectItem value='EXW'>EXW</SelectItem>
-                      <SelectItem value='CIF'>CIF</SelectItem>
-                      <SelectItem value='CFR'>CFR</SelectItem>
+                      <SelectItem value='Sea'>Sea</SelectItem>
+                      <SelectItem value='Air'>Air</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/** Port of Loading */}
+                {/* BLAWB */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>BL/AWB</Label>
+                  <Input
+                    placeholder='Input BL/AWB'
+                    className={cn(
+                      'col-span-3',
+                      invoiceFormik.touched.blawb &&
+                        invoiceFormik.errors.blawb &&
+                        'border-red-500',
+                    )}
+                    id='blawb'
+                    name='blawb'
+                    type='text'
+                    onChange={invoiceFormik.handleChange}
+                    onBlur={invoiceFormik.handleBlur}
+                    value={invoiceFormik.values.blawb}
+                  />
+                </div>
+
+                {/* AJU */}
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label className='text-left'>AJU</Label>
+                  <Input
+                    placeholder='Input AJU'
+                    className={cn(
+                      'col-span-3',
+                      invoiceFormik.touched.aju &&
+                        invoiceFormik.errors.aju &&
+                        'border-red-500',
+                    )}
+                    id='aju'
+                    name='aju'
+                    type='text'
+                    onChange={invoiceFormik.handleChange}
+                    onBlur={invoiceFormik.handleBlur}
+                    value={invoiceFormik.values.aju}
+                  />
+                </div>
+              </div>
+
+              <div className='flex flex-1 flex-col gap-4'>
+                {/* Port of Loading */}
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label className='text-left'>Port of Loading</Label>
                   <Select
-                    value={quotationFormik.values.portOfLoadingId}
+                    value={invoiceFormik.values.portOfLoadingId}
                     onValueChange={(value) => {
                       const selectedPort = port.find((p) => p.id === value);
                       if (selectedPort) {
-                        quotationFormik.setFieldValue(
+                        invoiceFormik.setFieldValue(
                           'portOfLoadingId',
                           selectedPort.id,
-                        );
-                        quotationFormik.setFieldValue(
-                          'portOfLoadingName',
-                          selectedPort.portName,
                         );
                       }
                     }}
@@ -441,14 +517,13 @@ export default function InvoiceAction() {
                     <SelectTrigger
                       className={cn(
                         'col-span-3 w-full',
-                        quotationFormik.touched.portOfLoadingId &&
-                          quotationFormik.errors.portOfLoadingId &&
+                        invoiceFormik.touched.portOfLoadingId &&
+                          invoiceFormik.errors.portOfLoadingId &&
                           'border-red-500',
                       )}
                     >
                       <SelectValue placeholder='Port of Loading'>
-                        {quotationFormik.values.portOfLoadingName ||
-                          'Select Port'}
+                        Select Port
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
@@ -465,17 +540,13 @@ export default function InvoiceAction() {
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label className='text-left'>Port of Discharge</Label>
                   <Select
-                    value={quotationFormik.values.portOfDischargeId}
+                    value={invoiceFormik.values.portOfDischargeId}
                     onValueChange={(value) => {
                       const selectedPort = port.find((p) => p.id === value);
                       if (selectedPort) {
-                        quotationFormik.setFieldValue(
+                        invoiceFormik.setFieldValue(
                           'portOfDischargeId',
                           selectedPort.id,
-                        );
-                        quotationFormik.setFieldValue(
-                          'portOfDischargeName',
-                          selectedPort.portName,
                         );
                       }
                     }}
@@ -483,14 +554,13 @@ export default function InvoiceAction() {
                     <SelectTrigger
                       className={cn(
                         'col-span-3 w-full',
-                        quotationFormik.touched.portOfDischargeId &&
-                          quotationFormik.errors.portOfDischargeId &&
+                        invoiceFormik.touched.portOfDischargeId &&
+                          invoiceFormik.errors.portOfDischargeId &&
                           'border-red-500',
                       )}
                     >
                       <SelectValue placeholder='Port of Discharge'>
-                        {quotationFormik.values.portOfDischargeName ||
-                          'Select Port'}
+                        Select Port
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
@@ -502,145 +572,69 @@ export default function InvoiceAction() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              <div className='flex flex-1 flex-col gap-4'>
-                {/* Service */}
+                {/* Rate validity */}
                 <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Service</Label>
-                  <Select
-                    value={quotationFormik.values.service}
-                    onValueChange={(value) => {
-                      quotationFormik.setFieldValue('service', value);
-                    }}
-                  >
-                    <SelectTrigger
-                      className={cn(
-                        'col-span-3 w-full',
-                        quotationFormik.touched.service &&
-                          quotationFormik.errors.service &&
-                          'border-red-500',
-                      )}
-                    >
-                      <SelectValue placeholder='Service'>
-                        {quotationFormik.values.service || 'Select Service'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className='w-full'>
-                      <SelectItem value='Sea'>Sea</SelectItem>
-                      <SelectItem value='Air'>Air</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className='text-left'>Invoice Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'col-span-3 w-full justify-start text-left font-normal',
+                          !invoiceFormik.values.invoiceDate &&
+                            'text-muted-foreground',
+                          invoiceFormik.touched.invoiceDate &&
+                            invoiceFormik.errors.invoiceDate &&
+                            'border-red-500',
+                        )}
+                      >
+                        <CalendarIcon className='mr-2 h-4 w-4' />
+                        {invoiceFormik.values.invoiceDate ? (
+                          moment(invoiceFormik.values.invoiceDate).format(
+                            'YYYY-MM-DD',
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-full p-0'>
+                      <Calendar
+                        mode='single'
+                        selected={
+                          invoiceFormik.values.invoiceDate
+                            ? new Date(invoiceFormik.values.invoiceDate)
+                            : undefined
+                        }
+                        onSelect={(selectedDate) =>
+                          invoiceFormik.setFieldValue(
+                            'invoiceDate',
+                            moment(selectedDate).format('YYYY-MM-DD'),
+                          )
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
-                {/* Mass/Weight */}
+                {/* Shipping Marks */}
                 <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Mass/Weight</Label>
-                  <NumericFormat
-                    customInput={Input}
+                  <Label className='text-start'>Shipping Marks</Label>
+                  <Textarea
+                    id='shippingMarks'
+                    name='shippingMarks'
                     className={cn(
                       'col-span-3',
-                      quotationFormik.touched.weight &&
-                        quotationFormik.errors.weight &&
+                      invoiceFormik.touched.shippingMarks &&
+                        invoiceFormik.errors.shippingMarks &&
                         'border-red-500',
                     )}
-                    placeholder='In Kilogram'
-                    id='weight'
-                    name='weight'
-                    onValueChange={(values) => {
-                      const { floatValue } = values;
-                      quotationFormik.setFieldValue('weight', floatValue);
-                    }}
-                    onBlur={quotationFormik.handleBlur}
-                    value={quotationFormik.values.weight}
-                    rightIcon={<p>Kg</p>}
-                    thousandSeparator
-                  />
-                </div>
-
-                {/* Volume */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Volume</Label>
-                  <NumericFormat
-                    customInput={Input}
-                    className={cn(
-                      'col-span-3',
-                      quotationFormik.touched.volume &&
-                        quotationFormik.errors.volume &&
-                        'border-red-500',
-                    )}
-                    placeholder='m3'
-                    id='volume'
-                    name='volume'
-                    onValueChange={(values) => {
-                      const { floatValue } = values;
-                      quotationFormik.setFieldValue('volume', floatValue);
-                    }}
-                    onBlur={quotationFormik.handleBlur}
-                    value={quotationFormik.values.volume}
-                    rightIcon={<p>Cbm</p>}
-                    thousandSeparator
-                  />
-                </div>
-
-                {/* Sales */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Sales</Label>
-                  <Select
-                    value={quotationFormik.values.salesId}
-                    onValueChange={(value) => {
-                      const selectedUser = user.find((u) => u.id === value);
-                      if (selectedUser) {
-                        quotationFormik.setFieldValue(
-                          'salesId',
-                          selectedUser.id,
-                        );
-                        quotationFormik.setFieldValue(
-                          'salesName',
-                          selectedUser.name,
-                        );
-                      }
-                    }}
-                  >
-                    <SelectTrigger
-                      className={cn(
-                        'col-span-3 w-full',
-                        quotationFormik.touched.salesId &&
-                          quotationFormik.errors.salesId &&
-                          'border-red-500',
-                      )}
-                    >
-                      <SelectValue placeholder='Sales'>
-                        {quotationFormik.values.salesName || 'Select Sales'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className='w-full'>
-                      {user.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Payment Term */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label className='text-left'>Payment Term</Label>
-                  <Input
-                    placeholder='Input Payment Term'
-                    className={cn(
-                      'col-span-3',
-                      quotationFormik.touched.paymentTerm &&
-                        quotationFormik.errors.paymentTerm &&
-                        'border-red-500',
-                    )}
-                    id='paymentTerm'
-                    name='paymentTerm'
-                    type='text'
-                    onChange={quotationFormik.handleChange}
-                    onBlur={quotationFormik.handleBlur}
-                    value={quotationFormik.values.paymentTerm}
+                    onChange={invoiceFormik.handleChange}
+                    onBlur={invoiceFormik.handleBlur}
+                    value={invoiceFormik.values.shippingMarks}
+                    placeholder='Write your shipping marks here...'
                   />
                 </div>
 
@@ -648,25 +642,24 @@ export default function InvoiceAction() {
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label className='text-left'>Status</Label>
                   <Select
-                    value={quotationFormik.values.status}
+                    value={invoiceFormik.values.status}
                     onValueChange={(value) => {
-                      quotationFormik.setFieldValue('status', value);
+                      invoiceFormik.setFieldValue('status', value);
                     }}
                   >
                     <SelectTrigger
                       className={cn(
                         'col-span-3 w-full',
-                        quotationFormik.touched.status &&
-                          quotationFormik.errors.status &&
+                        invoiceFormik.touched.status &&
+                          invoiceFormik.errors.status &&
                           'border-red-500',
                       )}
                     >
                       <SelectValue placeholder='Status' />
                     </SelectTrigger>
                     <SelectContent className='w-full'>
-                      <SelectItem value='Accepted'>Accepted</SelectItem>
-                      <SelectItem value='Declined'>Declined</SelectItem>
-                      <SelectItem value='Pending'>Pending</SelectItem>
+                      <SelectItem value='Paid'>Paid</SelectItem>
+                      <SelectItem value='Unpaid'>Unpaid</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -675,25 +668,6 @@ export default function InvoiceAction() {
           </TabsContent>
           <TabsContent value='item'>
             <div className='flex flex-col gap-4 py-4'>
-              {/* Note */}
-              <div className='flex flex-col gap-4'>
-                <Label className='text-start'>Note</Label>
-                <Textarea
-                  id='note'
-                  name='note'
-                  className={cn(
-                    'col-span-3',
-                    quotationFormik.touched.note &&
-                      quotationFormik.errors.note &&
-                      'border-red-500',
-                  )}
-                  onChange={quotationFormik.handleChange}
-                  onBlur={quotationFormik.handleBlur}
-                  value={quotationFormik.values.note}
-                  placeholder='Write your note here...'
-                />
-              </div>
-
               {/* Add Item */}
               <div className='flex flex-col items-center justify-center gap-4 py-4'>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -712,14 +686,14 @@ export default function InvoiceAction() {
                         Fill the form below to add a new item.
                       </DialogDescription>
                     </DialogHeader>
-                    <ItemForm
+                    <InvoiceItemForm
                       onSubmit={(newItem) => {
                         const updatedItems = [
-                          ...quotationFormik.values.listCharges,
+                          ...invoiceFormik.values.invoiceItems,
                           newItem,
                         ];
-                        quotationFormik.setFieldValue(
-                          'listCharges',
+                        invoiceFormik.setFieldValue(
+                          'invoiceItems',
                           updatedItems,
                         );
                       }}
@@ -731,7 +705,7 @@ export default function InvoiceAction() {
 
               {/* Table Item */}
               <DataTable
-                staticData={quotationFormik?.values?.listCharges}
+                staticData={invoiceFormik?.values?.invoiceItems}
                 columns={columns}
                 options={{ pagination: false }}
                 onClickRow={() => {}}
@@ -744,7 +718,7 @@ export default function InvoiceAction() {
         <DialogFooter>
           <Button
             type='submit'
-            disabled={quotationFormik.values.listCharges.length === 0}
+            disabled={invoiceFormik.values.invoiceItems.length === 0}
           >
             Submit
           </Button>
