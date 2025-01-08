@@ -37,6 +37,7 @@ import { Button } from '@/components/ui/button';
 const customerLabel = [
   { id: 'name', name: 'Name', placeholder: 'John Doe', type: 'text' },
   { id: 'address', name: 'Address', placeholder: '123 Main St', type: 'text' },
+  { id: 'companyCode', name: 'Company Code', placeholder: 'RDX', type: 'text' },
 ];
 
 export default function Customer() {
@@ -60,6 +61,7 @@ export default function Customer() {
       createCustomerMutation({
         name: values.name,
         address: values.address,
+        companyCode: values.companyCode,
       });
     },
   });
@@ -72,6 +74,7 @@ export default function Customer() {
       updateCustomerMutation({
         name: values.name,
         address: values.address,
+        companyCode: values.companyCode,
         customerId: editData.ID,
       });
       setEditData(null);
@@ -83,6 +86,7 @@ export default function Customer() {
       editFormik.setValues({
         name: editData.Name || '',
         address: editData.Address || '',
+        companyCode: editData.CompanyCode || '',
       });
     }
   }, [editData]);
@@ -127,6 +131,10 @@ export default function Customer() {
     {
       header: 'Customer Name',
       assessor: 'Name',
+    },
+    {
+      header: 'Company Code',
+      assessor: 'CompanyCode',
     },
     {
       header: 'Address',

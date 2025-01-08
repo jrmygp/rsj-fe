@@ -7,7 +7,7 @@ export const useCreateCustomer = () => {
   const { customerRefetch } = useGetCustomer();
   const { mutate: createCustomerMutation, status: createCustomerStatus } =
     useCreateCustomerMutation({
-      onSuccess: async (res) => {
+      onSuccess: async () => {
         customerRefetch();
         toast({
           title: 'Create Customer Success',

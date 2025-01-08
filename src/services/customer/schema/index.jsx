@@ -7,4 +7,7 @@ export const customerSchema = Yup.object({
   address: Yup.string()
     .min(5, 'Address must be at least 5 characters')
     .required('Address is required'),
+  companyCode: Yup.string()
+    .max(3, 'Company code maximum 3 characters')
+    .required('Company code is required'),
 });
