@@ -146,9 +146,12 @@ export default function Invoice() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(`/radix-logistics/invoice/edit/${row.id}`, {
-                  state: { data: row },
-                })
+                navigate(
+                  `/radix-logistics/invoice/door-to-door/edit/${row.id}`,
+                  {
+                    state: { data: row },
+                  },
+                )
               }
             >
               <MdEdit />
@@ -202,7 +205,7 @@ export default function Invoice() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/radix-logistics/invoice/create-new');
+            navigate('/radix-logistics/invoice/door-to-door/create-new');
           }}
           className='flex w-fit items-center justify-center gap-2'
         >

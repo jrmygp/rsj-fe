@@ -34,7 +34,6 @@ import { useGetAllPort } from '@/services/port/hooks/useGetAllPort';
 import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useFormik } from 'formik';
-import ItemForm from '../../../_components/ItemForm';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import DataTable from '@/components/template/DataTable/DataTable';
@@ -133,7 +132,7 @@ export default function InvoiceAction() {
     validateOnChange: false,
     onSubmit: (values) => {
       if (id) {
-        updateInvoiceMutation(values);
+        updateInvoiceMutation({ id, ...values });
       } else {
         createInvoiceMutation(values);
       }
@@ -183,6 +182,13 @@ export default function InvoiceAction() {
       assessor: 'currency',
     },
     {
+      header: 'Kurs',
+      assessor: 'kurs',
+      Cell: (row) => {
+        return <p>{row.kurs.toLocaleString()}</p>;
+      },
+    },
+    {
       header: 'Quantity',
       assessor: 'quantity',
       Cell: (row) => {
@@ -192,10 +198,6 @@ export default function InvoiceAction() {
     {
       header: 'Unit',
       assessor: 'unit',
-    },
-    {
-      header: 'Note',
-      assessor: 'note',
     },
     {
       header: '',
@@ -222,7 +224,7 @@ export default function InvoiceAction() {
                     Fill the form below to edit an item.
                   </DialogDescription>
                 </DialogHeader>
-                <ItemForm
+                <InvoiceItemForm
                   item={row}
                   onSubmit={(newItem) => {
                     const updatedList = [...invoiceFormik.values.invoiceItems];
@@ -351,13 +353,13 @@ export default function InvoiceAction() {
                   <Select
                     value={invoiceFormik.values.consigneeId}
                     onValueChange={(value) => {
-                      const selectedCustomer = customer.find(
+                      const selectedConsignee = shipper.find(
                         (cust) => cust.id == value,
                       );
-                      if (selectedCustomer) {
+                      if (selectedConsignee) {
                         invoiceFormik.setFieldValue(
                           'consigneeId',
-                          selectedCustomer.id,
+                          selectedConsignee.id,
                         );
                       }
                     }}
@@ -393,13 +395,13 @@ export default function InvoiceAction() {
                   <Select
                     value={invoiceFormik.values.shipperId}
                     onValueChange={(value) => {
-                      const selectedCustomer = customer.find(
+                      const selectedShipper = customer.find(
                         (cust) => cust.id == value,
                       );
-                      if (selectedCustomer) {
+                      if (selectedShipper) {
                         invoiceFormik.setFieldValue(
                           'shipperId',
-                          selectedCustomer.id,
+                          selectedShipper.id,
                         );
                       }
                     }}
@@ -523,7 +525,10 @@ export default function InvoiceAction() {
                       )}
                     >
                       <SelectValue placeholder='Port of Loading'>
-                        Select Port
+                        {port.filter(
+                          (item) =>
+                            item.id == invoiceFormik.values.portOfLoadingId,
+                        )[0]?.portName || 'Select Port'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
@@ -560,7 +565,10 @@ export default function InvoiceAction() {
                       )}
                     >
                       <SelectValue placeholder='Port of Discharge'>
-                        Select Port
+                        {port.filter(
+                          (item) =>
+                            item.id == invoiceFormik.values.portOfDischargeId,
+                        )[0]?.portName || 'Select Port'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>

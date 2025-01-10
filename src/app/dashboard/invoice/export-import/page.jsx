@@ -102,20 +102,28 @@ export default function Invoice() {
       assessor: 'invoiceNumber',
     },
     {
-      header: 'Customer Name',
+      header: 'Customer',
       assessor: 'customerName',
     },
     {
-      header: 'Service',
-      assessor: 'service',
+      header: 'Consignee',
+      assessor: 'consigneeName',
     },
     {
-      header: 'BL/AWB',
-      assessor: 'blawb',
+      header: 'Shipper',
+      assessor: 'shipperName',
     },
     {
-      header: 'AJU',
-      assessor: 'aju',
+      header: 'Port Of Loading',
+      assessor: 'portOfLoadingName',
+    },
+    {
+      header: 'Weights',
+      assessor: 'weight',
+    },
+    {
+      header: 'Volume',
+      assessor: 'volume',
     },
     {
       header: 'Amount',

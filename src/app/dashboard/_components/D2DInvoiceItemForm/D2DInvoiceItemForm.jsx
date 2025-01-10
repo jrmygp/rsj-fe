@@ -14,7 +14,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import * as Yup from 'yup';
 import { NumericFormat } from 'react-number-format';
 
-const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
+const D2DInvoiceItemForm = ({ onSubmit, onClose, item }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -22,16 +22,14 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
       price: item?.price || '',
       currency: item?.currency || 'IDR',
       quantity: item?.quantity || '',
-      unit: item?.unit || '',
-      kurs: item?.kurs || null,
+      kurs: item?.kurs || '',
     },
     validationSchema: Yup.object({
       itemName: Yup.string().required('Item name is required'),
       price: Yup.string().required('Price is required'),
       currency: Yup.string().required('Currency is required'),
       quantity: Yup.string().required('Quantity is required'),
-      unit: Yup.string().required('Unit is required'),
-      kurs: Yup.string().nullable(),
+      kurs: Yup.string(),
     }),
     onSubmit: (values) => {
       onSubmit({
@@ -152,20 +150,6 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
             thousandSeparator
           />
         </div>
-
-        {/* Unit */}
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <Label className='text-right'>Unit</Label>
-          <Input
-            id='unit'
-            name='unit'
-            className={`col-span-3 ${formik.touched.unit && formik.errors.unit ? 'border-red-500' : ''}`}
-            value={formik.values.unit}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder='Enter Unit'
-          />
-        </div>
       </div>
 
       <DialogFooter>
@@ -178,4 +162,4 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
   );
 };
 
-export default InvoiceItemForm;
+export default D2DInvoiceItemForm;
