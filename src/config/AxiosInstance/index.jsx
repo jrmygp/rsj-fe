@@ -7,7 +7,7 @@ const AxiosInstance = axios.create({
 
 AxiosInstance.interceptors.request.use(
   async (request) => {
-    const cookie = await getCookie();
+    const cookie = getCookie();
 
     if (cookie) {
       request.headers['Authorization'] = `Bearer ${cookie}`;

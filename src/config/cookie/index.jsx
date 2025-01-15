@@ -10,4 +10,5 @@ export const getCookie = () => {
 
 export const deleteCookie = () => {
   Cookies.remove('scrt', { path: '/' });
+  window.location.replace('/');
 };

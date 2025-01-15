@@ -236,7 +236,8 @@ export default function InvoiceAction() {
             <Button
               variant='destructive'
               size='icon'
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 const updatedItems = invoiceFormik.values.invoiceItems.filter(
                   (_, i) => i !== index,
                 );

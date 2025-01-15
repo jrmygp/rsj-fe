@@ -185,7 +185,7 @@ export default function InvoiceAction() {
       header: 'Kurs',
       assessor: 'kurs',
       Cell: (row) => {
-        return <p>{row.kurs.toLocaleString()}</p>;
+        return <p>{row.kurs?.toLocaleString()}</p>;
       },
     },
     {
@@ -239,7 +239,8 @@ export default function InvoiceAction() {
             <Button
               variant='destructive'
               size='icon'
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 const updatedItems = invoiceFormik.values.invoiceItems.filter(
                   (_, i) => i !== index,
                 );

@@ -233,7 +233,8 @@ export default function QuotationAction() {
             <Button
               variant='destructive'
               size='icon'
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 const updatedItems = quotationFormik.values.listCharges.filter(
                   (_, i) => i !== index,
                 );

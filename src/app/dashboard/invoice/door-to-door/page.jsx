@@ -69,8 +69,8 @@ export default function Invoice() {
     return <Loading />;
   }
 
-  const invoice = invoiceData?.data;
-  const customer = customerData.data.data;
+  const invoice = invoiceData?.data || [];
+  const customer = customerData?.data?.data || [];
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -215,7 +215,7 @@ export default function Invoice() {
 
         <div className='flex items-center gap-2'>
           <Select
-            value={filter.customerId}
+            value={filter?.customerId}
             onValueChange={(value) => {
               setFilter({
                 customerId: value,

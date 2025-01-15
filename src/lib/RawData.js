@@ -89,11 +89,5 @@ export const DataSideBar = {
       items: [],
       ref: 'user',
     },
-    {
-      title: 'Logout',
-      url: '',
-      items: [],
-      ref: '',
-    },
   ],
 };

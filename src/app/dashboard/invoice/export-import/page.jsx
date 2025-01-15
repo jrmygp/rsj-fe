@@ -70,8 +70,8 @@ export default function Invoice() {
     return <Loading />;
   }
 
-  const invoice = invoiceData?.data;
-  const customer = customerData.data.data;
+  const invoice = invoiceData?.data || [];
+  const customer = customerData?.data?.data || [];
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -224,7 +224,7 @@ export default function Invoice() {
 
         <div className='flex items-center gap-2'>
           <Select
-            value={filter.customerId}
+            value={filter?.customerId}
             onValueChange={(value) => {
               setFilter({
                 category: location.pathname.split('/')[3],
@@ -234,14 +234,14 @@ export default function Invoice() {
           >
             <SelectTrigger>
               <SelectValue placeholder='Customer'>
-                {customer.filter((item) => item.id === filter.customerId)[0]
+                {customer?.filter((item) => item.id === filter.customerId)[0]
                   ?.name || 'Select Customer'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className='w-full'>
               <SelectItem value={0}>All Customer</SelectItem>
 
-              {customer.map((cust) => (
+              {customer?.map((cust) => (
                 <SelectItem key={cust.id} value={cust.id}>
                   {cust.name}
                 </SelectItem>
