@@ -198,7 +198,7 @@ export default function Port() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    this quotation.
+                    this port.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

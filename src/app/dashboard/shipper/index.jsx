@@ -1,15 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
-import { useGetCustomer } from '@/services/customer/hooks/useGetCustomer';
 import { useSearchParams } from 'react-router-dom';
-import Loading from '@/components/template/Loading';
-import SearchAndCreate from '../_components/SearchAndCreate';
 import { useDebounce } from 'use-debounce';
+import Loading from '@/components/template/Loading';
+import { useState, useEffect } from 'react';
+import SearchAndCreate from '../_components/SearchAndCreate';
 import { useFormik } from 'formik';
-import { customerSchema } from '@/services/customer/schema';
-import { useCreateCustomer } from '@/services/customer/hooks/useCreateCustomer';
-import { useDeleteCustomer } from '@/services/customer/hooks/useDeleteCustomer';
-import { useUpdateCustomer } from '@/services/customer/hooks/useUpdateCustomer';
+import * as yup from 'yup';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import {
   Dialog,
@@ -31,16 +27,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import DataTable from '@/components/template/DataTable/DataTable';
 import { Button } from '@/components/ui/button';
+import DataTable from '@/components/template/DataTable/DataTable';
+import { useGetShipper } from '@/services/shipper/hooks/useGetShipper';
+import { useCreateShipper } from '@/services/shipper/hooks/useCreateShipper';
+import { useDeleteShipper } from '@/services/shipper/hooks/useDeleteShipper';
+import { useUpdateShipper } from '@/services/shipper/hooks/useUpdatePort';
 
-const customerLabel = [
-  { id: 'name', name: 'Name', placeholder: 'John Doe', type: 'text' },
+const shipperLabel = [
+  {
+    id: 'name',
+    name: 'Name',
+    placeholder: 'John Doe',
+    type: 'text',
+  },
   { id: 'address', name: 'Address', placeholder: '123 Main St', type: 'text' },
-  { id: 'companyCode', name: 'Company Code', placeholder: 'RDX', type: 'text' },
 ];
 
-export default function Customer() {
+export default function Shipper() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1', 10);
   const search = searchParams.get('search') || '';
@@ -48,36 +52,39 @@ export default function Customer() {
   const [debouncedSearch] = useDebounce(searchValue, 1000);
   const [editData, setEditData] = useState(null);
 
-  const { createCustomerMutation, createCustomerStatus } = useCreateCustomer();
-  const { deleteCustomerMutation, deleteCustomerStatus } = useDeleteCustomer();
-  const { updateCustomerStatus, updateCustomerMutation } = useUpdateCustomer();
+  const { createShipperMutation, createShipperStatus } = useCreateShipper();
+  const { deleteShipperMutation, deleteShipperStatus } = useDeleteShipper();
+  const { updateShipperMutation, updateShipperStatus } = useUpdateShipper();
 
-  const customerFormik = useFormik({
+  const shipperFormik = useFormik({
     initialValues: { name: '', address: '' },
-    validationSchema: customerSchema,
+    validationSchema: yup.object().shape({
+      name: yup.string().required('Shipper name is required'),
+      address: yup.string().required('Address is required'),
+    }),
     validateOnChange: false,
     validateOnBlur: false,
     onSubmit: (values) => {
-      createCustomerMutation({
+      createShipperMutation({
         name: values.name,
         address: values.address,
-        companyCode: values.companyCode,
       });
     },
   });
 
   const editFormik = useFormik({
     initialValues: { name: '', address: '' },
-    validationSchema: customerSchema,
+    validationSchema: yup.object().shape({
+      name: yup.string().required('Shipper name is required'),
+      address: yup.string().required('Address is required'),
+    }),
     enableReinitialize: true,
     onSubmit: (values) => {
-      updateCustomerMutation({
+      updateShipperMutation({
         name: values.name,
         address: values.address,
-        companyCode: values.companyCode,
-        customerId: editData.ID,
+        shipperId: editData?.ID,
       });
-      setEditData(null);
     },
   });
 
@@ -86,37 +93,33 @@ export default function Customer() {
       editFormik.setValues({
         name: editData.Name || '',
         address: editData.Address || '',
-        companyCode: editData.CompanyCode || '',
       });
     }
   }, [editData]);
 
-  useEffect(() => {
-    if (!searchParams.get('page')) {
-      setSearchParams({ page: '1', search });
-    }
-  }, [searchParams, setSearchParams, search]);
-
-  const { customerData, customerStatus, customerRefetch } = useGetCustomer(
+  const { shipperData, shipperStatus, shipperRefetch } = useGetShipper(
     debouncedSearch,
     page,
   );
 
   useEffect(() => {
-    customerRefetch();
-  }, [page, debouncedSearch, deleteCustomerStatus, updateCustomerStatus]);
-
-  useEffect(() => {
-    if (!searchParams.get('page')) {
-      setSearchParams({ page: '1', search: debouncedSearch });
+    shipperRefetch();
+    if (updateShipperStatus === 'success') {
+      setEditData(null);
     }
-  }, [searchParams, setSearchParams, debouncedSearch]);
+  }, [
+    page,
+    debouncedSearch,
+    createShipperStatus,
+    deleteShipperStatus,
+    updateShipperStatus,
+  ]);
 
-  if (customerStatus === 'pending') {
+  if (shipperStatus === 'pending') {
     return <Loading />;
   }
 
-  const customers = customerData?.data || [];
+  const shippers = shipperData.data;
 
   const handlePageChange = (newPage) => {
     setSearchParams({ page: newPage.toString(), search: debouncedSearch });
@@ -129,15 +132,11 @@ export default function Customer() {
 
   const columns = [
     {
-      header: 'Customer Name',
+      header: 'Shipper Name',
       assessor: 'Name',
     },
     {
-      header: 'Company Code',
-      assessor: 'CompanyCode',
-    },
-    {
-      header: 'Address',
+      header: 'Adress',
       assessor: 'Address',
     },
     {
@@ -165,7 +164,7 @@ export default function Customer() {
                     Make changes here and click save when done.
                   </DialogDescription>
                 </DialogHeader>
-                <DynamicEditForm formik={editFormik} labels={customerLabel} />
+                <DynamicEditForm formik={editFormik} labels={shipperLabel} />
               </DialogContent>
             </Dialog>
 
@@ -184,14 +183,14 @@ export default function Customer() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    this customer.
+                    this shipper.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => deleteCustomerMutation({ costId: row.ID })}
-                    disabled={deleteCustomerStatus === 'pending'}
+                    onClick={() => deleteShipperMutation({ shipperId: row.ID })}
+                    disabled={deleteShipperStatus === 'pending'}
                   >
                     Continue
                   </AlertDialogAction>
@@ -206,18 +205,18 @@ export default function Customer() {
 
   return (
     <div className='flex h-full w-full flex-col justify-start gap-4 px-10 pb-5'>
-      <div className='text-[48px] font-semibold'>Customer</div>
+      <div className='text-[48px] font-semibold'>Shipper</div>
       <SearchAndCreate
-        title={'Add Customer'}
-        searchValue={searchValue}
+        title={'Add Shipper'}
         handleSearchChange={handleSearchChange}
-        labels={customerLabel}
-        formik={customerFormik}
-        mutationStatus={createCustomerStatus}
+        searchValue={searchValue}
+        labels={shipperLabel}
+        formik={shipperFormik}
+        mutationStatus={createShipperStatus}
       />
-      <div className='flex flex-col items-center justify-between gap-[16px] rounded-xl border bg-white p-10 shadow-xl'>
+      <div className='flex flex-col items-center justify-between gap-4 rounded-xl border bg-white p-10 shadow-xl'>
         <DataTable
-          data={customers}
+          data={shippers}
           columns={columns}
           options={{ pagination: true }}
           page={page}

@@ -194,7 +194,7 @@ export default function CostCharges() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    this quotation.
+                    this cost charge.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
