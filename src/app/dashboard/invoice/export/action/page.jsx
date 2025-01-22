@@ -97,7 +97,7 @@ export default function InvoiceExportAction() {
     enableReinitialize: invoiceDetail ? true : false,
     initialValues: {
       invoiceNumber: invoiceDetail?.invoiceNumber || newInvoiceNumber,
-      type: invoiceDetail?.type || '',
+      type: invoiceDetail?.type || 'Export Handling',
       customerId: invoiceDetail?.customerId || '',
       consigneeId: invoiceDetail?.consigneeId || '',
       shipperId: invoiceDetail?.shipperId || '',
@@ -281,6 +281,7 @@ export default function InvoiceExportAction() {
                     onChange={invoiceFormik.handleChange}
                     onBlur={invoiceFormik.handleBlur}
                     value={invoiceFormik.values.invoiceNumber}
+                    disabled={id}
                   />
                 </div>
 

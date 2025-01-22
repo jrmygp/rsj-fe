@@ -97,7 +97,7 @@ export default function InvoiceImportAction() {
     enableReinitialize: invoiceDetail ? true : false,
     initialValues: {
       invoiceNumber: invoiceDetail?.invoiceNumber || newInvoiceNumber,
-      type: invoiceDetail?.type || '',
+      type: invoiceDetail?.type || 'Import Clearances Charges',
       customerId: invoiceDetail?.customerId || '',
       consigneeId: invoiceDetail?.consigneeId || '',
       shipperId: invoiceDetail?.shipperId || '',
@@ -281,6 +281,7 @@ export default function InvoiceImportAction() {
                     onChange={invoiceFormik.handleChange}
                     onBlur={invoiceFormik.handleBlur}
                     value={invoiceFormik.values.invoiceNumber}
+                    disabled={id}
                   />
                 </div>
 
@@ -352,7 +353,7 @@ export default function InvoiceImportAction() {
                   <Select
                     value={invoiceFormik.values.consigneeId}
                     onValueChange={(value) => {
-                      const selectedConsignee = shipper.find(
+                      const selectedConsignee = customer.find(
                         (cust) => cust.id == value,
                       );
                       if (selectedConsignee) {
@@ -373,13 +374,13 @@ export default function InvoiceImportAction() {
                       )}
                     >
                       <SelectValue placeholder='Consignee'>
-                        {shipper.filter(
+                        {customer.filter(
                           (item) => item.id == invoiceFormik.values.consigneeId,
                         )[0]?.name || 'Select Consignee'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
-                      {shipper.map((item) => (
+                      {customer.map((item) => (
                         <SelectItem key={item.id} value={item.id}>
                           {item.name}
                         </SelectItem>
@@ -394,7 +395,7 @@ export default function InvoiceImportAction() {
                   <Select
                     value={invoiceFormik.values.shipperId}
                     onValueChange={(value) => {
-                      const selectedShipper = customer.find(
+                      const selectedShipper = shipper.find(
                         (cust) => cust.id == value,
                       );
                       if (selectedShipper) {
@@ -415,13 +416,13 @@ export default function InvoiceImportAction() {
                       )}
                     >
                       <SelectValue placeholder='Shipper'>
-                        {customer.filter(
+                        {shipper.filter(
                           (cust) => cust.id == invoiceFormik.values.shipperId,
                         )[0]?.name || 'Select Shipper'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='w-full'>
-                      {customer.map((cust) => (
+                      {shipper.map((cust) => (
                         <SelectItem key={cust.id} value={cust.id}>
                           {cust.name}
                         </SelectItem>

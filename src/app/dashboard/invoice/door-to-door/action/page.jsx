@@ -98,7 +98,7 @@ export default function InvoiceAction() {
     enableReinitialize: invoiceDetail ? true : false,
     initialValues: {
       invoiceNumber: invoiceDetail?.invoiceNumber || newInvoiceNumber,
-      type: invoiceDetail?.type || '',
+      type: invoiceDetail?.type || 'Door to Door Charges',
       customerId: invoiceDetail?.customerId || '',
       consigneeId: invoiceDetail?.consigneeId || '',
       shipperId: invoiceDetail?.shipperId || '',
