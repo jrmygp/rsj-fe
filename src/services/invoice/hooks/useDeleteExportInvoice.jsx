@@ -1,11 +1,11 @@
 import { useToast } from '@/hooks/use-toast';
-import { useDeleteInvoiceMutation } from '../api/useDeleteInvoiceMutation';
+import { useDeleteExportInvoiceMutation } from '../api/useDeleteExportInvoiceMutation';
 
-export const useDeleteInvoice = () => {
+export const useDeleteExportInvoice = () => {
   const { toast } = useToast();
 
   const { mutate: deleteInvoiceMutation, status: deleteInvoiceStatus } =
-    useDeleteInvoiceMutation({
+    useDeleteExportInvoiceMutation({
       onSuccess: async () => {
         toast({
           variant: 'destructive',

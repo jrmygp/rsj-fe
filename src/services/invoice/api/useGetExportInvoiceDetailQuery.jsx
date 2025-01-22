@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosInstance } from '@/config/AxiosInstance';
 
-export const useGetInvoiceQuery = (search, page, filter) => {
+export const useGetExportInvoiceDetailQuery = (id) => {
   const { data, status, refetch } = useQuery({
-    queryKey: ['invoice'],
+    queryKey: ['detail-invoice'],
     queryFn: async () => {
-      return await AxiosInstance.post(
-        `/invoice/pagination?search=${search}&page=${page}`,
-        filter,
-      );
+      return await AxiosInstance.get(`/invoice-export/${id}`);
     },
   });
   return { data, status, refetch };

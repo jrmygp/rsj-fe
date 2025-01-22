@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Loading from '@/components/template/Loading';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import {
@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useGeneratePdf } from '@/services/quotation/hooks/useGeneratePdf';
 import {
   MdAdd,
   MdOutlineSearch,
@@ -33,12 +32,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetD2DInvoice } from '@/services/invoice/hooks/useGetD2DInvoice';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
-import { useDeleteD2DInvoice } from '@/services/invoice/hooks/useDeleteD2DInvoice';
+import { useGetImportInvoice } from '@/services/invoice/hooks/useGetImportInvoice';
+import { useDeleteImportInvoice } from '@/services/invoice/hooks/useDeleteImportInvoice';
+import { useGenerateImportPdf } from '@/services/invoice/hooks/useGenerateImportPdf';
 
-export default function Invoice() {
+export default function InvoiceImport() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const page = parseInt(searchParams.get('page') || '1', 10);
   const search = searchParams.get('search') || '';
   const [searchValue, setSearchValue] = useState(search);
@@ -49,16 +50,17 @@ export default function Invoice() {
 
   const navigate = useNavigate();
 
-  const { invoiceData, invoiceStatus, refetch } = useGetD2DInvoice(
+  const { invoiceData, invoiceStatus, refetch } = useGetImportInvoice(
     debouncedSearch,
     page,
     filter,
   );
   const { customerData, customerStatus } = useGetAllCustomer();
 
-  const { deleteInvoiceMutation, deleteInvoiceStatus } = useDeleteD2DInvoice();
+  const { deleteInvoiceMutation, deleteInvoiceStatus } =
+    useDeleteImportInvoice();
 
-  const { generatePdfMutation } = useGeneratePdf();
+  const { generatePdfMutation } = useGenerateImportPdf();
 
   useEffect(() => {
     refetch();
@@ -100,31 +102,23 @@ export default function Invoice() {
       assessor: 'invoiceNumber',
     },
     {
-      header: 'Customer',
+      header: 'Customer Name',
       assessor: 'customerName',
     },
     {
-      header: 'Consignee',
-      assessor: 'consigneeName',
+      header: 'Service',
+      assessor: 'service',
     },
     {
-      header: 'Shipper',
-      assessor: 'shipperName',
+      header: 'BL/AWB',
+      assessor: 'blawb',
     },
     {
-      header: 'Port Of Loading',
-      assessor: 'portOfLoadingName',
+      header: 'AJU',
+      assessor: 'aju',
     },
     {
-      header: 'Weights',
-      assessor: 'weight',
-    },
-    {
-      header: 'Volume',
-      assessor: 'volume',
-    },
-    {
-      header: 'Amount',
+      header: 'Nominal Invoice',
       assessor: 'nominal',
       Cell: (row) => {
         return <p>Rp {row.nominal.toLocaleString()}</p>;
@@ -153,12 +147,9 @@ export default function Invoice() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(
-                  `/radix-logistics/invoice/door-to-door/edit/${row.id}`,
-                  {
-                    state: { data: row },
-                  },
-                )
+                navigate(`/radix-logistics/invoice/import/edit/${row.id}`, {
+                  state: { data: row },
+                })
               }
             >
               <MdEdit />
@@ -210,7 +201,7 @@ export default function Invoice() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/radix-logistics/invoice/door-to-door/create-new');
+            navigate(`/radix-logistics/invoice/import/create-new`);
           }}
           className='flex w-fit items-center justify-center gap-2'
         >
@@ -223,19 +214,21 @@ export default function Invoice() {
             value={filter?.customerId}
             onValueChange={(value) => {
               setFilter({
+                category: location.pathname.split('/')[3],
                 customerId: value,
               });
             }}
           >
             <SelectTrigger>
               <SelectValue placeholder='Customer'>
-                {'Select Customer'}
+                {customer?.filter((item) => item.id === filter.customerId)[0]
+                  ?.name || 'Select Customer'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className='w-full'>
               <SelectItem value={0}>All Customer</SelectItem>
 
-              {customer.map((cust) => (
+              {customer?.map((cust) => (
                 <SelectItem key={cust.id} value={cust.id}>
                   {cust.name}
                 </SelectItem>

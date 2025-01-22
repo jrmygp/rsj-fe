@@ -1,13 +1,12 @@
 import { useToast } from '@/hooks/use-toast';
-import { useUpdateInvoiceMutation } from '../api/useUpdateInvoiceMutation';
+import { useUpdateImportInvoiceMutation } from '../api/useUpdateImportInvoiceMutation';
 
-export const useUpdateInvoice = () => {
+export const useUpdateImportInvoice = () => {
   const { toast } = useToast();
 
   const { mutate: updateInvoiceMutation, status: updateInvoiceStatus } =
-    useUpdateInvoiceMutation({
-      onSuccess: async (res) => {
-        console.log(res);
+    useUpdateImportInvoiceMutation({
+      onSuccess: async () => {
         toast({
           title: 'Update Invoice Success',
         });

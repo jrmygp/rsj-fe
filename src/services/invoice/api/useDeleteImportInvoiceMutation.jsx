@@ -1,12 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosInstance } from '@/config/AxiosInstance';
 
-export const useCreateInvoiceMutation = ({ onSuccess, onError }) => {
+export const useDeleteImportInvoiceMutation = ({ onSuccess, onError }) => {
   const { mutate, status } = useMutation({
     mutationFn: async (data) => {
-      return await AxiosInstance.post('/invoice', {
-        ...data,
-      });
+      return await AxiosInstance.delete(`/invoice-import/${data.id}`);
     },
     onSuccess,
     onError,

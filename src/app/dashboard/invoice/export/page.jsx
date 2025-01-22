@@ -25,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import DataTable from '@/components/template/DataTable/DataTable';
 import moment from 'moment';
-import { useGetInvoice } from '@/services/invoice/hooks/useGetInvoice';
 import {
   Select,
   SelectContent,
@@ -34,10 +33,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
-import { useGeneratePdf } from '@/services/invoice/hooks/useGeneratePdf';
-import { useDeleteInvoice } from '@/services/invoice/hooks/useDeleteInvoice';
+import { useGenerateExportPdf } from '@/services/invoice/hooks/useGenerateExportPdf';
+import { useGetExportInvoice } from '@/services/invoice/hooks/useGetExportInvoice';
+import { useDeleteExportInvoice } from '@/services/invoice/hooks/useDeleteExportInvoice';
 
-export default function Invoice() {
+export default function InvoiceExport() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -46,21 +46,21 @@ export default function Invoice() {
   const [debouncedSearch] = useDebounce(searchValue, 1000);
   const [filter, setFilter] = useState({
     customerId: 0,
-    category: location.pathname.split('/')[3],
   });
 
   const navigate = useNavigate();
 
-  const { invoiceData, invoiceStatus, refetch } = useGetInvoice(
+  const { invoiceData, invoiceStatus, refetch } = useGetExportInvoice(
     debouncedSearch,
     page,
     filter,
   );
   const { customerData, customerStatus } = useGetAllCustomer();
 
-  const { deleteInvoiceMutation, deleteInvoiceStatus } = useDeleteInvoice();
+  const { deleteInvoiceMutation, deleteInvoiceStatus } =
+    useDeleteExportInvoice();
 
-  const { generatePdfMutation } = useGeneratePdf();
+  const { generatePdfMutation } = useGenerateExportPdf();
 
   useEffect(() => {
     refetch();
@@ -102,31 +102,23 @@ export default function Invoice() {
       assessor: 'invoiceNumber',
     },
     {
-      header: 'Customer',
+      header: 'Customer Name',
       assessor: 'customerName',
     },
     {
-      header: 'Consignee',
-      assessor: 'consigneeName',
+      header: 'Service',
+      assessor: 'service',
     },
     {
-      header: 'Shipper',
-      assessor: 'shipperName',
+      header: 'BL/AWB',
+      assessor: 'blawb',
     },
     {
-      header: 'Port Of Loading',
-      assessor: 'portOfLoadingName',
+      header: 'AJU',
+      assessor: 'aju',
     },
     {
-      header: 'Weights',
-      assessor: 'weight',
-    },
-    {
-      header: 'Volume',
-      assessor: 'volume',
-    },
-    {
-      header: 'Amount',
+      header: 'Nominal Invoice',
       assessor: 'nominal',
       Cell: (row) => {
         return <p>Rp {row.nominal.toLocaleString()}</p>;
@@ -155,12 +147,9 @@ export default function Invoice() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(
-                  `/radix-logistics/invoice/${location.pathname.split('/')[3]}/edit/${row.id}`,
-                  {
-                    state: { data: row },
-                  },
-                )
+                navigate(`/radix-logistics/invoice/export/edit/${row.id}`, {
+                  state: { data: row },
+                })
               }
             >
               <MdEdit />
@@ -212,9 +201,7 @@ export default function Invoice() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate(
-              `/radix-logistics/invoice/${location.pathname.split('/')[3]}/create-new`,
-            );
+            navigate(`/radix-logistics/invoice/export/create-new`);
           }}
           className='flex w-fit items-center justify-center gap-2'
         >

@@ -34,22 +34,21 @@ import { useGetAllPort } from '@/services/port/hooks/useGetAllPort';
 import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useFormik } from 'formik';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import DataTable from '@/components/template/DataTable/DataTable';
-import { useGetInvoiceDetail } from '@/services/invoice/hooks/useGetInvoiceDetail';
 import moment from 'moment';
 import { DefaultInvNumber } from '@/lib/DefaultInvNumber';
 import { useGetAllShipper } from '@/services/shipper/hooks/useGetAllShipper';
 import InvoiceItemForm from '@/app/dashboard/_components/InvoiceItemForm/InvoiceItemForm';
 import * as yup from 'yup';
-import { useCreateInvoice } from '@/services/invoice/hooks/useCreateInvoice';
-import { useGetInvoice } from '@/services/invoice/hooks/useGetInvoice';
-import { useUpdateInvoice } from '@/services/invoice/hooks/useUpdateInvoice';
+import { useCreateExportInvoice } from '@/services/invoice/hooks/useCreateExportInvoice';
+import { useUpdateExportInvoice } from '@/services/invoice/hooks/useUpdateExportInvoice';
+import { useGetExportInvoice } from '@/services/invoice/hooks/useGetExportInvoice';
+import { useGetExportInvoiceDetail } from '@/services/invoice/hooks/useGetExportInvoiceDetail';
 
-export default function InvoiceAction() {
+export default function InvoiceExportAction() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
@@ -57,13 +56,15 @@ export default function InvoiceAction() {
     setIsDialogOpen(false);
   };
 
-  const { createInvoiceMutation, createInvoiceStatus } = useCreateInvoice();
+  const { createInvoiceMutation, createInvoiceStatus } =
+    useCreateExportInvoice();
 
-  const { updateInvoiceMutation, updateInvoiceStatus } = useUpdateInvoice();
+  const { updateInvoiceMutation, updateInvoiceStatus } =
+    useUpdateExportInvoice();
 
   useEffect(() => {
     if (updateInvoiceStatus == 'success' || createInvoiceStatus === 'success') {
-      navigate(`/radix-logistics/invoice/${location.pathname.split('/')[3]}`);
+      navigate(`/radix-logistics/invoice/export`);
     }
   }, [createInvoiceStatus, updateInvoiceStatus]);
 
@@ -71,12 +72,11 @@ export default function InvoiceAction() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { invoiceDetailData, invoiceDetailStatus } = id
-    ? useGetInvoiceDetail(id)
+    ? useGetExportInvoiceDetail(id)
     : { invoiceDetailData: null, invoiceDetailStatus: 'idle' };
 
-  const { invoiceData, invoiceStatus, refetch } = useGetInvoice('', 1, {
+  const { invoiceData, invoiceStatus, refetch } = useGetExportInvoice('', 1, {
     customerId: selectedCustomer?.id,
-    category: location.pathname.split('/')[3],
   });
   const { customerData, customerStatus } = useGetAllCustomer();
   const { shipperData, shipperStatus } = useGetAllShipper();
@@ -90,13 +90,12 @@ export default function InvoiceAction() {
   const newInvoiceNumber = DefaultInvNumber(
     invoiceData?.data,
     selectedCustomer?.companyCode || '???',
-    location.pathname.split('/')[3],
+    'export',
   );
 
   const invoiceFormik = useFormik({
     enableReinitialize: invoiceDetail ? true : false,
     initialValues: {
-      category: invoiceDetail?.category || location.pathname.split('/')[3],
       invoiceNumber: invoiceDetail?.invoiceNumber || newInvoiceNumber,
       type: invoiceDetail?.type || '',
       customerId: invoiceDetail?.customerId || '',
@@ -114,7 +113,6 @@ export default function InvoiceAction() {
       invoiceItems: [],
     },
     validationSchema: yup.object().shape({
-      category: yup.string().required('Category is required by system'),
       invoiceNumber: yup.string().required('Invoice Number is required'),
       type: yup.string().required('Type is required'),
       customerId: yup.string().required('Customer is required'),

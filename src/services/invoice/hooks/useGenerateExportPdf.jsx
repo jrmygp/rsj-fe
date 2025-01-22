@@ -1,14 +1,14 @@
 import { useToast } from '@/hooks/use-toast';
-import { useGeneratePdfMutation } from '../api/useGeneratePdfMutation';
+import { useGenerateExportPdfMutation } from '../api/useGenerateExportPdfMutation';
 
-export const useGeneratePdf = () => {
+export const useGenerateExportPdf = () => {
   const { toast } = useToast();
 
   const {
     mutate: generatePdfMutation,
     status: generatePdfStatus,
     data,
-  } = useGeneratePdfMutation({
+  } = useGenerateExportPdfMutation({
     onSuccess: async (res, variables) => {
       try {
         const blob = new Blob([res.data], { type: 'application/pdf' });
