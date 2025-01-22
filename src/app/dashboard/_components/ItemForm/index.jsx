@@ -26,7 +26,7 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
       itemName: item?.itemName || '',
       price: item?.price || '',
       currency: item?.currency || '',
-      quantity: item?.quantity || '',
+      quantity: item?.quantity || 1,
       unit: item?.unit || '',
       note: item?.note || '',
     },
@@ -40,7 +40,7 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
       note: Yup.string(),
     }),
     onSubmit: (values) => {
-      onSubmit(values);
+      onSubmit({ ...values, quantity: Number(values.quantity) });
       formik.resetForm();
       onClose();
     },
