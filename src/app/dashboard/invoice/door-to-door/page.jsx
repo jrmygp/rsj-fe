@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useGeneratePdf } from '@/services/quotation/hooks/useGeneratePdf';
 import {
   MdAdd,
   MdOutlineSearch,
@@ -36,6 +35,7 @@ import {
 import { useGetD2DInvoice } from '@/services/invoice/hooks/useGetD2DInvoice';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
 import { useDeleteD2DInvoice } from '@/services/invoice/hooks/useDeleteD2DInvoice';
+import { useGenerateD2DPdf } from '@/services/invoice/hooks/useGenerateD2DPdf';
 
 export default function Invoice() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,7 +58,7 @@ export default function Invoice() {
 
   const { deleteInvoiceMutation, deleteInvoiceStatus } = useDeleteD2DInvoice();
 
-  const { generatePdfMutation } = useGeneratePdf();
+  const { generatePdfMutation } = useGenerateD2DPdf();
 
   useEffect(() => {
     refetch();
