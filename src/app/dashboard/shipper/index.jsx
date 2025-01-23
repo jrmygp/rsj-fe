@@ -136,7 +136,7 @@ export default function Shipper() {
       assessor: 'Name',
     },
     {
-      header: 'Adress',
+      header: 'Address',
       assessor: 'Address',
     },
     {

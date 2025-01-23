@@ -81,12 +81,15 @@ export default function SearchAndCreate({
 
                   {labelItem.type === 'select' && (
                     <Select
+                      value={formik.values[labelItem.id]}
                       onValueChange={(value) =>
                         formik.setFieldValue(labelItem.id, value)
                       }
                     >
                       <SelectTrigger className='w-full'>
-                        <SelectValue placeholder={labelItem.placeholder} />
+                        <SelectValue
+                          placeholder={labelItem.placeholder}
+                        ></SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {labelItem.options.map((option) => (

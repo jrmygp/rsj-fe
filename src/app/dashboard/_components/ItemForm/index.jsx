@@ -25,7 +25,7 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
       itemId: item?.itemId || '',
       itemName: item?.itemName || '',
       price: item?.price || '',
-      currency: item?.currency || '',
+      currency: item?.currency || 'IDR',
       quantity: item?.quantity || 1,
       unit: item?.unit || '',
       note: item?.note || '',

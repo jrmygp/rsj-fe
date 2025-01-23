@@ -21,7 +21,7 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
       itemName: item?.itemName || '',
       price: item?.price || '',
       currency: item?.currency || 'IDR',
-      quantity: item?.quantity || '',
+      quantity: item?.quantity || 1,
       unit: item?.unit || '',
       kurs: item?.kurs || null,
     },

@@ -61,7 +61,7 @@ export default function CostCharges() {
   const { updateCostMutation, updateCostStatus } = useUpdateCost();
 
   const costFormik = useFormik({
-    initialValues: { name: '', status: '' },
+    initialValues: { name: '', status: 'Active' },
     validationSchema: costSchema,
     validateOnChange: false,
     validateOnBlur: false,
@@ -74,7 +74,7 @@ export default function CostCharges() {
   });
 
   const editFormik = useFormik({
-    initialValues: { name: '', status: '' },
+    initialValues: { name: '', status: 'Active' },
     validationSchema: costSchema,
     enableReinitialize: true,
     onSubmit: (values) => {

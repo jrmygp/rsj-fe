@@ -62,7 +62,7 @@ export default function Port() {
   const { updatePortMutation, updatePortStatus } = useUpdatePort();
 
   const portFormik = useFormik({
-    initialValues: { portName: '', note: '', status: '' },
+    initialValues: { portName: '', note: '', status: 'Active' },
     validationSchema: portSchema,
     validateOnChange: false,
     validateOnBlur: false,
@@ -76,7 +76,7 @@ export default function Port() {
   });
 
   const editFormik = useFormik({
-    initialValues: { portName: '', note: '', status: '' },
+    initialValues: { portName: '', note: '', status: 'Active' },
     validationSchema: portSchema,
     enableReinitialize: true,
     onSubmit: (values) => {

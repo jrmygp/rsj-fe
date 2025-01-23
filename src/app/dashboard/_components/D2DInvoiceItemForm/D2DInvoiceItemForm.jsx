@@ -21,7 +21,7 @@ const D2DInvoiceItemForm = ({ onSubmit, onClose, item }) => {
       itemName: item?.itemName || '',
       price: item?.price || '',
       currency: item?.currency || 'IDR',
-      quantity: item?.quantity || '',
+      quantity: item?.quantity || 1,
       kurs: item?.kurs || '',
     },
     validationSchema: Yup.object({

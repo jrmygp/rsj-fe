@@ -123,7 +123,7 @@ export default function InvoiceAction() {
       service: yup.string().required('Service is required'),
       portOfLoadingId: yup.string().required('Port Of Loading is required'),
       portOfDischargeId: yup.string().required('Port Of Discharge is required'),
-      shippingMarks: yup.string().required('Shipping Marks is required'),
+      shippingMarks: yup.string(),
       invoiceDate: yup.string().required('Invoice Date is required'),
       status: yup.string().required('Status is required'),
       quantity: yup.string().required('quantity is required'),
