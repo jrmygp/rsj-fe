@@ -277,6 +277,7 @@ export default function QuotationAction() {
                     onChange={quotationFormik.handleChange}
                     onBlur={quotationFormik.handleBlur}
                     value={quotationFormik.values.quotationNumber}
+                    disabled={id}
                   />
                 </div>
 
