@@ -52,7 +52,7 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
     return <Loading />;
   }
 
-  const cost = costData.data.data;
+  const cost = costData?.data?.data;
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -160,15 +160,27 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
           <Label htmlFor='unit' className='text-right'>
             Unit
           </Label>
-          <Input
-            id='unit'
-            name='unit'
-            className={`col-span-3 ${formik.touched.unit && formik.errors.unit ? 'border-red-500' : ''}`}
+          <Select
             value={formik.values.unit}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder='Enter Unit'
-          />
+            onValueChange={(value) => {
+              formik.setFieldValue('unit', value === 'none' ? '' : value);
+            }}
+            onBlur={() => formik.setFieldTouched('unit')}
+          >
+            <SelectTrigger
+              className={`col-span-3 ${formik.touched.unit && formik.errors.unit ? 'border-red-500' : ''}`}
+            >
+              <SelectValue placeholder='Select Unit' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='none'>None</SelectItem>
+              <SelectItem value='Shipment'>Shipment</SelectItem>
+              <SelectItem value='Box'>Box</SelectItem>
+              <SelectItem value='Container'>Container</SelectItem>
+              <SelectItem value='Barrel'>Barrel</SelectItem>
+              <SelectItem value='Kg'>Kg</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {/* Note */}
         <div className='grid grid-cols-4 items-start gap-4'>

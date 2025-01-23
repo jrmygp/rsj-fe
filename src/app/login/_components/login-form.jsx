@@ -13,7 +13,7 @@ import { LoginSchema } from '@/services/login/schema';
 import { useLogin } from '@/services/login/hooks/useLogin';
 
 export function LoginForm() {
-  const { loginMutation } = useLogin();
+  const { loginMutation, loginStatus } = useLogin();
 
   const formik = useFormik({
     initialValues: {
@@ -76,8 +76,12 @@ export function LoginForm() {
               </Label>
             ) : null}
           </div>
-          <Button type='submit' className='mt-6 w-full'>
-            Login
+          <Button
+            type='submit'
+            className='mt-6 w-full'
+            disabled={loginStatus === 'pending'}
+          >
+            {loginStatus === 'pending' ? 'Loading...' : 'Login'}
           </Button>
         </form>
       </CardContent>

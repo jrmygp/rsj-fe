@@ -30,7 +30,7 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
       price: Yup.string().required('Price is required'),
       currency: Yup.string().required('Currency is required'),
       quantity: Yup.string().required('Quantity is required'),
-      unit: Yup.string().required('Unit is required'),
+      unit: Yup.string(),
       kurs: Yup.string().nullable(),
     }),
     onSubmit: (values) => {
@@ -156,15 +156,28 @@ const InvoiceItemForm = ({ onSubmit, onClose, item }) => {
         {/* Unit */}
         <div className='grid grid-cols-4 items-center gap-4'>
           <Label className='text-right'>Unit</Label>
-          <Input
-            id='unit'
-            name='unit'
-            className={`col-span-3 ${formik.touched.unit && formik.errors.unit ? 'border-red-500' : ''}`}
+
+          <Select
             value={formik.values.unit}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder='Enter Unit'
-          />
+            onValueChange={(value) => {
+              formik.setFieldValue('unit', value === 'none' ? '' : value);
+            }}
+            onBlur={() => formik.setFieldTouched('unit')}
+          >
+            <SelectTrigger
+              className={`col-span-3 ${formik.touched.unit && formik.errors.unit ? 'border-red-500' : ''}`}
+            >
+              <SelectValue placeholder='Select Unit' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='none'>None</SelectItem>
+              <SelectItem value='Shipment'>Shipment</SelectItem>
+              <SelectItem value='Box'>Box</SelectItem>
+              <SelectItem value='Container'>Container</SelectItem>
+              <SelectItem value='Barrel'>Barrel</SelectItem>
+              <SelectItem value='Kg'>Kg</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

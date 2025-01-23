@@ -6,7 +6,7 @@ export const useUpdateQuotation = () => {
 
   const { mutate: updateQuotationMutation, status: updateQuotationStatus } =
     useUpdateQuotationMutation({
-      onSuccess: async (res) => {
+      onSuccess: async () => {
         toast({
           title: 'update Quotation Success',
         });

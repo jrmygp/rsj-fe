@@ -3,12 +3,14 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '@/store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '@/config/cookie';
+import { useToast } from '@/hooks/use-toast';
 
 export const useLogin = () => {
+  const { toast } = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { mutate: loginMutation } = useLoginMutation({
+  const { mutate: loginMutation, status: loginStatus } = useLoginMutation({
     onSuccess: async (res) => {
       const token = res.data.data.token;
 
@@ -25,8 +27,13 @@ export const useLogin = () => {
     },
     onError: (err) => {
       console.log(err);
+      toast({
+        title: 'Error',
+        description: err.response.data.error,
+        variant: 'destructive',
+      });
     },
   });
 
-  return { loginMutation };
+  return { loginMutation, loginStatus };
 };
