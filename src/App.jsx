@@ -6,6 +6,7 @@ import UserPage from './app/dashboard/user/page';
 import QuotationRoutes from './routing/QuotationRoutes/QuotationRoutes';
 import MasterDataRoutes from './routing/MasterDataRoutes/MasterDataRoutes';
 import InvoiceRoutes from './routing/InvoiceRoutes/InvoiceRoutes';
+import DocumentRoutes from './routing/DocumentRoutes/DocumentRoutes';
 
 function App() {
   return (
@@ -31,6 +32,10 @@ function App() {
                         <Route
                           path='/master-data/*'
                           element={<MasterDataRoutes />}
+                        />
+                        <Route
+                          path='/document/*'
+                          element={<DocumentRoutes />}
                         />
                         <Route path='/user' element={<UserPage />} />
                       </Routes>

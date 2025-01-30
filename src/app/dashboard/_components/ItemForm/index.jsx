@@ -175,10 +175,6 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
             <SelectContent>
               <SelectItem value='none'>None</SelectItem>
               <SelectItem value='Shipment'>Shipment</SelectItem>
-              <SelectItem value='Box'>Box</SelectItem>
-              <SelectItem value='Container'>Container</SelectItem>
-              <SelectItem value='Barrel'>Barrel</SelectItem>
-              <SelectItem value='Kg'>Kg</SelectItem>
             </SelectContent>
           </Select>
         </div>

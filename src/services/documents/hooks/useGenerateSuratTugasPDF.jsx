@@ -1,21 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { useToast } from '@/hooks/use-toast';
-import { useGenerateD2DPdfMutation } from '../api/useGenerateD2DPdfMutation';
+import { useGenerateSuratTugasPDFMutation } from '../api/useGenerateSuratTugasMutation';
 
-export const useGenerateD2DPdf = () => {
+export const useGenerateSuratTugasPDF = () => {
   const { toast } = useToast();
 
   const {
     mutate: generatePdfMutation,
     status: generatePdfStatus,
     data,
-  } = useGenerateD2DPdfMutation({
+  } = useGenerateSuratTugasPDFMutation({
     onSuccess: async (res, variables) => {
       try {
         const blob = new Blob([res.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
 
-        const fileName = `${variables.invoiceNumber || 'Invoice'}.pdf`;
+        const fileName = `${variables.documentNumber || 'Surat Tugas'}.pdf`;
 
         const link = document.createElement('a');
         link.href = url;

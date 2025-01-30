@@ -46,12 +46,14 @@ export const DataSideBar = {
       url: '',
       items: [
         {
-          title: 'Link 1',
-          url: '',
+          title: 'Surat Tugas',
+          url: '/radix-logistics/document/surat-tugas',
+          ref: 'surat-tugas',
         },
         {
-          title: 'Link 2',
-          url: '',
+          title: 'Surat Jalan',
+          url: '/radix-logistics/document/surat-jalan',
+          ref: 'surat-jalan',
         },
       ],
       ref: 'document',
