@@ -110,8 +110,8 @@ export default function InvoiceAction() {
         moment(invoiceDetail?.invoiceDate).format('YYYY-MM-DD') || '',
       status: invoiceDetail?.status || 'Unpaid',
       quantity: invoiceDetail?.quantity || '',
-      weight: invoiceDetail?.weight || '',
-      volume: invoiceDetail?.volume || '',
+      weight: invoiceDetail?.weight || 0,
+      volume: invoiceDetail?.volume || 0,
       invoiceItems: [],
     },
     validationSchema: yup.object().shape({
@@ -127,8 +127,8 @@ export default function InvoiceAction() {
       invoiceDate: yup.string().required('Invoice Date is required'),
       status: yup.string().required('Status is required'),
       quantity: yup.string().required('quantity is required'),
-      weight: yup.string().required('Weight is required'),
-      volume: yup.string().required('Volume is required'),
+      weight: yup.string(),
+      volume: yup.string(),
     }),
     validateOnChange: false,
     onSubmit: (values) => {
@@ -488,7 +488,7 @@ export default function InvoiceAction() {
                     value={invoiceFormik.values.weight}
                     onValueChange={(values) => {
                       const { floatValue } = values;
-                      invoiceFormik.setFieldValue('weight', floatValue);
+                      invoiceFormik.setFieldValue('weight', floatValue || 0);
                     }}
                     onBlur={invoiceFormik.handleBlur}
                     placeholder='Enter Weight'
@@ -508,7 +508,7 @@ export default function InvoiceAction() {
                     value={invoiceFormik.values.volume}
                     onValueChange={(values) => {
                       const { floatValue } = values;
-                      invoiceFormik.setFieldValue('volume', floatValue);
+                      invoiceFormik.setFieldValue('volume', floatValue || 0);
                     }}
                     onBlur={invoiceFormik.handleBlur}
                     placeholder='Enter Volume'
