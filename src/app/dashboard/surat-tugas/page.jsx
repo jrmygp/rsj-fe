@@ -89,9 +89,12 @@ export default function SuratTugas() {
               size='icon'
               className='rounded-full bg-blue-500'
               onClick={() =>
-                navigate(`/radix-logistics/surat-tugas/edit/${row.id}`, {
-                  state: { data: row },
-                })
+                navigate(
+                  `/radix-logistics/document/surat-tugas/edit/${row.id}`,
+                  {
+                    state: { data: row },
+                  },
+                )
               }
             >
               <MdEdit />
@@ -143,7 +146,7 @@ export default function SuratTugas() {
       <div className='flex items-center justify-between'>
         <Button
           onClick={() => {
-            navigate('/radix-logistics/quotation/create-new');
+            navigate('/radix-logistics/document/surat-tugas/create-new');
           }}
           className='flex w-fit items-center justify-center gap-2'
         >
