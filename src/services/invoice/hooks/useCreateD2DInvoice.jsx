@@ -6,14 +6,17 @@ export const useCreateD2DInvoice = () => {
 
   const { mutate: createInvoiceMutation, status: createInvoiceStatus } =
     useCreateD2DInvoiceMutation({
-      onSuccess: async (res) => {
-        console.log(res);
+      onSuccess: async () => {
         toast({
           title: 'Create Invoice Success',
         });
       },
       onError: (err) => {
-        console.log(err);
+        toast({
+          title: 'Error',
+          description: err.response.data.error,
+          variant: 'destructive',
+        });
       },
     });
 

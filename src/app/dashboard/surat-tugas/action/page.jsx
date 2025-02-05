@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useEffect } from 'react';
 import Loading from '@/components/template/Loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useGetSuratTugasDetail } from '@/services/documents/hooks/useGetSuratTugasDetail';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
 import { cn } from '@/lib/utils';
 import {
@@ -23,18 +25,38 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useCreateSuratTugas } from '@/services/documents/hooks/useCreateSuratTugas';
+import { useUpdateSuratTugas } from '@/services/documents/hooks/useUpdateSuratTugas';
+import { useGetSuratTugas } from '@/services/documents/hooks/useGetSuratTugas';
+import { DefaultSuratTugasNumber } from '@/lib/DefaultSuratTugasNumber';
 
 const SuratTugasAction = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { suratTugasDetailData, suratTugasDetailStatus } = id
     ? useGetSuratTugasDetail(id)
     : { suratTugasDetailData: null, suratTugasDetailStatus: 'idle' };
   const suratTugasDetail = suratTugasDetailData?.data?.data;
+  const { suratTugasData, suratTugasStatus } = useGetSuratTugas('', 1);
+  const { createSuratTugas, createSuratTugasStatus } = useCreateSuratTugas();
+  const { updateSuratTugasMutation, updateSuratTugasStatus } =
+    useUpdateSuratTugas();
+
+  useEffect(() => {
+    if (
+      createSuratTugasStatus === 'success' ||
+      updateSuratTugasStatus === 'success'
+    ) {
+      navigate(`/radix-logistics/document/surat-tugas`);
+    }
+  }, [createSuratTugasStatus, updateSuratTugasStatus]);
+
+  const newSuratTugasNumber = DefaultSuratTugasNumber(suratTugasData?.data);
 
   const formik = useFormik({
     enableReinitialize: id ? true : false,
     initialValues: {
-      documentNumber: suratTugasDetail?.documentNumber || '',
+      documentNumber: suratTugasDetail?.documentNumber || newSuratTugasNumber,
       assignor: suratTugasDetail?.assignor || '',
       assignee: suratTugasDetail?.assignee || '',
       liners: suratTugasDetail?.liners || '',
@@ -53,11 +75,15 @@ const SuratTugasAction = () => {
     }),
     validateOnChange: false,
     onSubmit: (values) => {
-      console.log(values);
+      if (id) {
+        updateSuratTugasMutation({ id, ...values });
+      } else {
+        createSuratTugas(values);
+      }
     },
   });
 
-  if (suratTugasDetailStatus === 'pending') {
+  if (suratTugasDetailStatus === 'pending' || suratTugasStatus === 'pending') {
     return <Loading />;
   }
 
@@ -80,6 +106,7 @@ const SuratTugasAction = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.documentNumber}
+            disabled={id}
           />
         </div>
 
@@ -162,6 +189,23 @@ const SuratTugasAction = () => {
               <SelectItem value='BL'>BL</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className='grid grid-cols-10 items-center'>
+          <Label className='col-span-1 text-left'>BL/AWB</Label>
+          <Input
+            className={cn(
+              'col-span-3',
+              formik.touched.blawb && formik.errors.blawb && 'border-red-500',
+            )}
+            placeholder='Input BL/AWB'
+            id='blawb'
+            name='blawb'
+            type='text'
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.blawb}
+          />
         </div>
 
         <div className='grid grid-cols-10 items-center'>

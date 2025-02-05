@@ -1,15 +1,15 @@
 import { useToast } from '@/hooks/use-toast';
-import { useDeleteD2DInvoiceMutation } from '../api/useDeleteD2DInvoiceMutation';
+import { useDeleteSuratTugasMutation } from '../api/useDeleteSuratTugasMutation';
 
-export const useDeleteD2DInvoice = () => {
+export const useDeleteSuratTugas = () => {
   const { toast } = useToast();
 
-  const { mutate: deleteInvoiceMutation, status: deleteInvoiceStatus } =
-    useDeleteD2DInvoiceMutation({
+  const { mutate: deleteSuratTugasMutation, status: deleteSuratTugasStatus } =
+    useDeleteSuratTugasMutation({
       onSuccess: async () => {
         toast({
           variant: 'destructive',
-          title: 'Delete Invoice Success',
+          title: 'Delete Surat Tugas Success',
         });
       },
       onError: (err) => {
@@ -20,5 +20,5 @@ export const useDeleteD2DInvoice = () => {
         });
       },
     });
-  return { deleteInvoiceMutation, deleteInvoiceStatus };
+  return { deleteSuratTugasMutation, deleteSuratTugasStatus };
 };

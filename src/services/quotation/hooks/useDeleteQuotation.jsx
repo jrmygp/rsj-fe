@@ -13,7 +13,11 @@ export const useDeleteQuotation = () => {
         });
       },
       onError: (err) => {
-        console.log(err);
+        toast({
+          title: 'Error',
+          description: err.response.data.error,
+          variant: 'destructive',
+        });
       },
     });
   return { deleteQuotationMutation, deleteQuotationStatus };

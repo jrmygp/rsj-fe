@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
 import { useToast } from '@/hooks/use-toast';
-import { useUpdateD2DInvoiceMutation } from '../api/useUpdateD2DInvoiceMutation';
+import { useUpdateSuratTugasMutation } from '../api/useUpdateSuratTugasMutation';
 
-export const useUpdateD2DInvoice = () => {
+export const useUpdateSuratTugas = () => {
   const { toast } = useToast();
 
-  const { mutate: updateInvoiceMutation, status: updateInvoiceStatus } =
-    useUpdateD2DInvoiceMutation({
+  const { mutate: updateSuratTugasMutation, status: updateSuratTugasStatus } =
+    useUpdateSuratTugasMutation({
       onSuccess: async (res) => {
         toast({
-          title: 'Update Invoice Success',
+          title: 'Update Surat Tugas Success',
         });
       },
       onError: (err) => {
@@ -21,5 +21,5 @@ export const useUpdateD2DInvoice = () => {
       },
     });
 
-  return { updateInvoiceMutation, updateInvoiceStatus };
+  return { updateSuratTugasMutation, updateSuratTugasStatus };
 };

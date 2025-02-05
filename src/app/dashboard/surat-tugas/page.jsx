@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input';
 import { useGetSuratTugas } from '@/services/documents/hooks/useGetSuratTugas';
 import Loading from '@/components/template/Loading';
 import { useGenerateSuratTugasPDF } from '@/services/documents/hooks/useGenerateSuratTugasPDF';
+import { useDeleteSuratTugas } from '@/services/documents/hooks/useDeleteSuratTugas';
 
 export default function SuratTugas() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,12 +41,14 @@ export default function SuratTugas() {
     debouncedSearch,
     page,
   );
+  const { deleteSuratTugasMutation, deleteSuratTugasStatus } =
+    useDeleteSuratTugas();
 
   const { generatePdfMutation } = useGenerateSuratTugasPDF();
 
   useEffect(() => {
     refetch();
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, deleteSuratTugasStatus]);
 
   if (suratTugasStatus === 'pending') {
     return <Loading />;
@@ -120,7 +123,9 @@ export default function SuratTugas() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => {}}>
+                  <AlertDialogAction
+                    onClick={() => deleteSuratTugasMutation(row)}
+                  >
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useToast } from '@/hooks/use-toast';
 import { useGenerateExportPdfMutation } from '../api/useGenerateExportPdfMutation';
 
@@ -28,7 +29,6 @@ export const useGenerateExportPdf = () => {
           title: 'PDF Generated',
         });
       } catch (error) {
-        console.error('Error downloading PDF:', error);
         toast({
           title: 'Error',
           description: 'Gagal mengunduh file PDF.',
@@ -36,8 +36,7 @@ export const useGenerateExportPdf = () => {
         });
       }
     },
-    onError: (err) => {
-      console.error(err);
+    onError: () => {
       toast({
         title: 'Error',
         description: 'Gagal menghasilkan file PDF.',

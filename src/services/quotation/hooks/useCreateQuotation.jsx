@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useToast } from '@/hooks/use-toast';
 
 import { useCreateQuotationMutation } from '../api/useCreateQuotationMutation';
@@ -8,13 +9,16 @@ export const useCreateQuotation = () => {
   const { mutate: createQuotationMutation, status: createQuotationStatus } =
     useCreateQuotationMutation({
       onSuccess: async (res) => {
-        console.log(res);
         toast({
           title: 'Create Quotation Success',
         });
       },
       onError: (err) => {
-        console.log(err);
+        toast({
+          title: 'Error',
+          description: err.response.data.error,
+          variant: 'destructive',
+        });
       },
     });
 

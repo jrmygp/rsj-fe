@@ -26,7 +26,11 @@ export const useLogin = () => {
       navigate('/radix-logistics/dashboard');
     },
     onError: (err) => {
-      console.log(err);
+      toast({
+        title: 'Error',
+        description: err.response.data.error,
+        variant: 'destructive',
+      });
       toast({
         title: 'Error',
         description: err.response.data.error,
