@@ -111,41 +111,53 @@ const SuratTugasAction = () => {
         </div>
 
         <div className='grid grid-cols-10 items-center'>
-          <Label className='col-span-1 text-left'>Assignor</Label>
-          <Input
-            className={cn(
-              'col-span-3',
-              formik.touched.assignor &&
-                formik.errors.assignor &&
-                'border-red-500',
-            )}
-            placeholder='Input Assignor'
-            id='assignor'
-            name='assignor'
-            type='text'
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
+          <Label className='text-left'>Assignor</Label>
+          <Select
             value={formik.values.assignor}
-          />
+            onValueChange={(value) => {
+              formik.setFieldValue('assignor', value);
+            }}
+          >
+            <SelectTrigger
+              className={cn(
+                'col-span-3 w-full',
+                formik.touched.assignor &&
+                  formik.errors.assignor &&
+                  'border-red-500',
+              )}
+            >
+              <SelectValue placeholder='Assignor' />
+            </SelectTrigger>
+            <SelectContent className='w-full'>
+              <SelectItem value='Harto Joman'>Harto Joman</SelectItem>
+              <SelectItem value='Martin Joman'>Martin Joman</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className='grid grid-cols-10 items-center'>
-          <Label className='col-span-1 text-left'>Assignee</Label>
-          <Input
-            className={cn(
-              'col-span-3',
-              formik.touched.assignee &&
-                formik.errors.assignee &&
-                'border-red-500',
-            )}
-            placeholder='Input Assignee'
-            id='assignee'
-            name='assignee'
-            type='text'
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
+          <Label className='text-left'>Assignee</Label>
+          <Select
             value={formik.values.assignee}
-          />
+            onValueChange={(value) => {
+              formik.setFieldValue('assignee', value);
+            }}
+          >
+            <SelectTrigger
+              className={cn(
+                'col-span-3 w-full',
+                formik.touched.assignee &&
+                  formik.errors.assignee &&
+                  'border-red-500',
+              )}
+            >
+              <SelectValue placeholder='Assignee' />
+            </SelectTrigger>
+            <SelectContent className='w-full'>
+              <SelectItem value='Indra Abadi'>Indra Abadi</SelectItem>
+              <SelectItem value='Sigit Alifiyah'>Sigit Alifiyah</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className='grid grid-cols-10 items-center'>
