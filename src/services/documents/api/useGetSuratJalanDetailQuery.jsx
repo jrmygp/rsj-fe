@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosInstance } from '@/config/AxiosInstance';
 
-export const useGetSuratTugasQuery = (search, page) => {
+export const useGetSuratJalanDetailQuery = (id) => {
   const { data, status, refetch } = useQuery({
-    queryKey: ['surat-tugas'],
+    queryKey: ['detail-surat-jalan'],
     queryFn: async () => {
-      return await AxiosInstance.post(
-        `/surat-tugas/pagination?search=${search}&page=${page}`,
-      );
+      return await AxiosInstance.get(`/surat-jalan/${id}`);
     },
   });
   return { data, status, refetch };

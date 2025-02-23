@@ -13,46 +13,35 @@ import {
 import { DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import * as Yup from 'yup';
-import { useGetAllCost } from '@/services/cost-charges/hooks/useGetAllCost';
-import Loading from '@/components/template/Loading';
-import { cn } from '@/lib/utils';
 import { NumericFormat } from 'react-number-format';
 
-const ItemForm = ({ onSubmit, onClose, item }) => {
+const SuratJalanItemForm = ({ onSubmit, onClose, item }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      itemId: item?.itemId || '',
       itemName: item?.itemName || '',
-      price: item?.price || '',
-      currency: item?.currency || 'IDR',
+      type: item?.type || 'LCL',
       quantity: item?.quantity || 1,
-      unit: item?.unit || '',
+      colly: item?.colly || 0,
+      volume: item?.volume || 0,
+      unit: item?.unit || 'kgs',
       note: item?.note || '',
     },
     validationSchema: Yup.object({
-      itemId: Yup.string().required('Item ID is required'),
       itemName: Yup.string().required('Item name is required'),
-      price: Yup.string().required('Price is required'),
-      currency: Yup.string().required('Currency is required'),
+      type: Yup.string().required('Type is required'),
       quantity: Yup.string().required('Quantity is required'),
+      colly: Yup.string().required('Colly is required'),
+      volume: Yup.string().required('Volume is required'),
       unit: Yup.string(),
       note: Yup.string(),
     }),
     onSubmit: (values) => {
-      onSubmit(values);
+      onSubmit({ ...values, quantity: Number(values.quantity) });
       formik.resetForm();
       onClose();
     },
   });
-
-  const { costData, costStatus } = useGetAllCost();
-
-  if (costStatus === 'pending') {
-    return <Loading />;
-  }
-
-  const cost = costData?.data?.data;
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -60,84 +49,44 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
         {/* Item Name */}
         <div className='grid grid-cols-4 items-center gap-4'>
           <Label className='text-right'>Item</Label>
-          <Select
-            value={formik.values.itemId}
-            onValueChange={(value) => {
-              const selectedPort = cost.find((p) => p.id === value);
-              if (selectedPort) {
-                formik.setFieldValue('itemId', selectedPort.id);
-                formik.setFieldValue('itemName', selectedPort.name);
-              }
-            }}
-          >
-            <SelectTrigger
-              className={cn(
-                'col-span-3 w-full',
-                formik.touched.itemId &&
-                  formik.errors.itemId &&
-                  'border-red-500',
-              )}
-            >
-              <SelectValue placeholder='Item'>
-                {formik.values.itemName || 'Select Port'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className='w-full'>
-              {cost.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Price */}
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <Label htmlFor='price' className='text-right'>
-            Price
-          </Label>
-
-          <NumericFormat
-            customInput={Input}
-            id='price'
-            name='price'
-            className={`col-span-3 ${formik.touched.price && formik.errors.price ? 'border-red-500' : ''}`}
-            value={formik.values.price}
-            onValueChange={(values) => {
-              const { floatValue } = values;
-              formik.setFieldValue('price', floatValue);
-            }}
+          <Input
+            id='itemName'
+            name='itemName'
+            className={`col-span-3 ${formik.touched.itemName && formik.errors.itemName ? 'border-red-500' : ''}`}
+            value={formik.values.itemName}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder='Enter Price'
-            thousandSeparator
+            placeholder='Enter Item Name'
           />
         </div>
-        {/* Currency */}
+
+        {/* Type */}
         <div className='grid grid-cols-4 items-center gap-4'>
-          <Label htmlFor='currency' className='text-right'>
-            Currency
+          <Label htmlFor='type' className='text-right'>
+            Type
           </Label>
           <Select
-            value={formik.values.currency}
-            onValueChange={(value) => formik.setFieldValue('currency', value)}
-            onBlur={() => formik.setFieldTouched('currency')}
+            value={formik.values.type}
+            onValueChange={(value) => formik.setFieldValue('type', value)}
+            onBlur={() => formik.setFieldTouched('type')}
           >
             <SelectTrigger
-              className={`col-span-3 ${formik.touched.currency && formik.errors.currency ? 'border-red-500' : ''}`}
+              className={`col-span-3 ${formik.touched.type && formik.errors.type ? 'border-red-500' : ''}`}
             >
-              <SelectValue placeholder='Select Currency' />
+              <SelectValue placeholder='Select Type' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='IDR'>IDR</SelectItem>
-              <SelectItem value='USD'>USD</SelectItem>
-              <SelectItem value='SGD'>SGD</SelectItem>
-              <SelectItem value='MYR'>MYR</SelectItem>
-              <SelectItem value='EUR'>EUR</SelectItem>
-              <SelectItem value='THB'>THB</SelectItem>
-              <SelectItem value='RMB'>RMB</SelectItem>
+              <SelectItem value='LCL'>LCL</SelectItem>
+              <SelectItem value='20FT'>20FT</SelectItem>
+              <SelectItem value='40FT'>40FT</SelectItem>
+              <SelectItem value='40HC'>40HC</SelectItem>
+              <SelectItem value='45FT'>45FT</SelectItem>
+              <SelectItem value='20FR'>20FR</SelectItem>
+              <SelectItem value='40FR'>40FR</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
         {/* Quantity */}
         <div className='grid grid-cols-4 items-center gap-4'>
           <Label htmlFor='quantity' className='text-right'>
@@ -158,6 +107,49 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
             thousandSeparator
           />
         </div>
+
+        {/* Colly */}
+        <div className='grid grid-cols-4 items-center gap-4'>
+          <Label htmlFor='colly' className='text-right'>
+            Colly / Pkgs
+          </Label>
+          <NumericFormat
+            customInput={Input}
+            id='colly'
+            name='colly'
+            className={`col-span-3 ${formik.touched.colly && formik.errors.colly ? 'border-red-500' : ''}`}
+            value={formik.values.colly}
+            onValueChange={(values) => {
+              const { floatValue } = values;
+              formik.setFieldValue('colly', floatValue);
+            }}
+            onBlur={formik.handleBlur}
+            placeholder='Enter Colly / Pkgs'
+            thousandSeparator
+          />
+        </div>
+
+        {/* Volume */}
+        <div className='grid grid-cols-4 items-center gap-4'>
+          <Label htmlFor='volume' className='text-right'>
+            Kgs / Volume
+          </Label>
+          <NumericFormat
+            customInput={Input}
+            id='volume'
+            name='volume'
+            className={`col-span-3 ${formik.touched.volume && formik.errors.volume ? 'border-red-500' : ''}`}
+            value={formik.values.volume}
+            onValueChange={(values) => {
+              const { floatValue } = values;
+              formik.setFieldValue('volume', floatValue);
+            }}
+            onBlur={formik.handleBlur}
+            placeholder='Enter Kgs / Volume'
+            thousandSeparator
+          />
+        </div>
+
         {/* Unit */}
         <div className='grid grid-cols-4 items-center gap-4'>
           <Label htmlFor='unit' className='text-right'>
@@ -166,7 +158,7 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
           <Select
             value={formik.values.unit}
             onValueChange={(value) => {
-              formik.setFieldValue('unit', value === 'none' ? '' : value);
+              formik.setFieldValue('unit', value);
             }}
             onBlur={() => formik.setFieldTouched('unit')}
           >
@@ -176,11 +168,12 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
               <SelectValue placeholder='Select Unit' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='none'>None</SelectItem>
-              <SelectItem value='Shipment'>Shipment</SelectItem>
+              <SelectItem value='kgs'>kgs</SelectItem>
+              <SelectItem value='volume'>volume</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
         {/* Note */}
         <div className='grid grid-cols-4 items-start gap-4'>
           <Label htmlFor='note' className='text-right'>
@@ -208,4 +201,4 @@ const ItemForm = ({ onSubmit, onClose, item }) => {
   );
 };
 
-export default ItemForm;
+export default SuratJalanItemForm;

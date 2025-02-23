@@ -30,7 +30,6 @@ import { DefaultQuotationNumber } from '@/lib/DefaultQuoNumber';
 import Loading from '@/components/template/Loading';
 import { useGetUser } from '@/services/user/hooks/useGetUser';
 import { useGetAllCustomer } from '@/services/customer/hooks/useGetAllCustomer';
-import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
@@ -47,6 +46,7 @@ import { useGetQuotationDetail } from '@/services/quotation/hooks/useGetQuotatio
 import { NumericFormat } from 'react-number-format';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import DataTable from '@/components/template/DataTable/DataTable';
+import moment from 'moment';
 
 export default function QuotationAction() {
   const navigate = useNavigate();
@@ -90,7 +90,7 @@ export default function QuotationAction() {
     ? {
         ...quotationDetail,
         rateValidity: quotationDetail.rateValidity
-          ? format(new Date(quotationDetail.rateValidity), 'yyyy-MM-dd')
+          ? moment(quotationDetail.rateValidity).format('YYYY-MM-DD')
           : '',
       }
     : {
@@ -122,15 +122,10 @@ export default function QuotationAction() {
     enableReinitialize: true,
     onSubmit: (values) => {
       if (id) {
-        const formattedRateValidity = values.rateValidity
-          ? format(parseISO(values.rateValidity), "yyyy-MM-dd'T'HH:mm:ss'Z'")
-          : null;
-
         const payload = {
           ...values,
           weight: parseFloat(values.weight),
           volume: parseFloat(values.volume),
-          rateValidity: formattedRateValidity,
         };
 
         updateQuotationMutation(payload);
@@ -139,14 +134,6 @@ export default function QuotationAction() {
       }
     },
   });
-
-  const handleDateChange = (selectedDate) => {
-    const formattedDate = selectedDate
-      ? format(selectedDate, 'yyyy-MM-dd')
-      : '';
-
-    quotationFormik.setFieldValue('rateValidity', formattedDate);
-  };
 
   if (
     quotationDetailStatus === 'pending' ||
@@ -364,9 +351,8 @@ export default function QuotationAction() {
                       >
                         <CalendarIcon className='mr-2 h-4 w-4' />
                         {quotationFormik.values.rateValidity ? (
-                          format(
-                            new Date(quotationFormik.values.rateValidity),
-                            'dd/MM/yyyy',
+                          moment(quotationFormik.values.rateValidity).format(
+                            'YYYY-MM-DD',
                           )
                         ) : (
                           <span>Pick a date</span>
@@ -382,7 +368,10 @@ export default function QuotationAction() {
                             : undefined
                         }
                         onSelect={(selectedDate) =>
-                          handleDateChange(selectedDate)
+                          quotationFormik.setFieldValue(
+                            'rateValidity',
+                            moment(selectedDate).format('YYYY-MM-DD'),
+                          )
                         }
                         initialFocus
                       />
