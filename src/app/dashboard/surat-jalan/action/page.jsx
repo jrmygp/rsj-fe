@@ -119,10 +119,6 @@ const SuratJalanAction = () => {
       assessor: 'volume',
     },
     {
-      header: 'Address',
-      assessor: 'address',
-    },
-    {
       header: '',
       Cell: (row, index) => {
         return (
@@ -282,14 +278,6 @@ const SuratJalanAction = () => {
                 placeholder='Enter Address'
               />
             </div>
-
-            <div className='grid grid-cols-10 items-center'>
-              <div className='col-span-3' />
-
-              <Button type='submit' className='col-span-1'>
-                Submit
-              </Button>
-            </div>
           </div>
         </TabsContent>
 
@@ -331,6 +319,10 @@ const SuratJalanAction = () => {
           />
         </TabsContent>
       </Tabs>
+
+      <div className='flex w-full items-center justify-center'>
+        <Button type='submit'>Submit</Button>
+      </div>
     </form>
   );
 };
