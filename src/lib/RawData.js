@@ -82,6 +82,11 @@ export const DataSideBar = {
           url: '/radix-logistics/master-data/shipper',
           ref: 'shipper',
         },
+        {
+          title: 'Warehouse',
+          url: '/radix-logistics/master-data/warehouse',
+          ref: 'warehouse',
+        },
       ],
       ref: 'master-data',
     },
