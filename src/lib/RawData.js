@@ -2,22 +2,10 @@ export const DataSideBar = {
   versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
   navMain: [
     {
-      title: 'Reff',
-      url: '',
-      items: [],
-      ref: '',
-    },
-    {
       title: 'Quotation',
       url: '/radix-logistics/quotation',
       items: [],
       ref: 'quotation',
-    },
-    {
-      title: 'Booking Confirmation',
-      url: '',
-      items: [],
-      ref: '',
     },
     {
       title: 'Invoice',
@@ -40,6 +28,12 @@ export const DataSideBar = {
         },
       ],
       ref: 'invoice',
+    },
+    {
+      title: 'Shipment',
+      url: '/radix-logistics/shipment',
+      items: [],
+      ref: 'shipment',
     },
     {
       title: 'Document',

@@ -7,6 +7,7 @@ import QuotationRoutes from './routing/QuotationRoutes/QuotationRoutes';
 import MasterDataRoutes from './routing/MasterDataRoutes/MasterDataRoutes';
 import InvoiceRoutes from './routing/InvoiceRoutes/InvoiceRoutes';
 import DocumentRoutes from './routing/DocumentRoutes/DocumentRoutes';
+import ShipmentRoutes from './routing/ShipmentRoutes/ShipmentRoutes';
 
 function App() {
   return (
@@ -29,6 +30,10 @@ function App() {
                           element={<QuotationRoutes />}
                         />
                         <Route path='/invoice/*' element={<InvoiceRoutes />} />
+                        <Route
+                          path='/shipment/*'
+                          element={<ShipmentRoutes />}
+                        />
                         <Route
                           path='/master-data/*'
                           element={<MasterDataRoutes />}
